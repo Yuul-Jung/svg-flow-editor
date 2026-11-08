@@ -594,25 +594,6 @@ function refineRenderedText(svg){
  if(changed){geometryPass++;return true;}
  geometryPass=0;return false;
 }
-function ensureHeadingChartGap(){
- // Keep the heading separator clear of every node. Move the whole diagram,
- // not individual nodes, so existing connector endpoints remain attached.
- if(!scene.nodes.length)return;
- const h=getHeading('subtitle');
- const subtitleBottom=h.y+h.h/2;
- const dividerY=subtitleBottom+18;
- const requiredTop=dividerY+36;
- const currentTop=Math.min(...scene.nodes.map(n=>n.y-n.h/2));
- const shift=Math.ceil(requiredTop-currentTop);
- if(shift<=0)return;
- scene.nodes.forEach(n=>{n.y+=shift;});
- // Absolute manual bend coordinates must follow the translated diagram.
- scene.edges.forEach(e=>{
-  if(e.via&&Number.isFinite(e.via.y))e.via.y+=shift;
-  if(Array.isArray(e.bendPoints))e.bendPoints.forEach(p=>{if(Array.isArray(p)&&Number.isFinite(p[1]))p[1]+=shift;});
- });
- scene.height+=shift;
-}
 function render(){if(mode==='raw'){renderRaw();return}const s=$('canvas');s.replaceChildren();s.setAttribute('width',scene.width);s.setAttribute('height',scene.height);s.setAttribute('viewBox',`0 0 ${scene.width} ${scene.height}`);
  const defs=sEl('defs');
  for(const [i,e] of scene.edges.entries()){
@@ -636,7 +617,10 @@ function render(){if(mode==='raw'){renderRaw();return}const s=$('canvas');s.repl
  const nodeTop=scene.nodes.length?Math.min(...scene.nodes.map(n=>n.y-n.h/2)):scene.height;
  const dividerY=subtitleBottom+18;
  const dividerInset=0;
- s.append(sEl('line',{x1:dividerInset,y1:dividerY,x2:scene.width-dividerInset,y2:dividerY,stroke:'#c5cfdb','stroke-width':2,'pointer-events':'none','data-role':'heading-divider'}));
+ // Do not paint a divider over flowchart nodes when the imported layout is tight.
+ if(nodeTop>=dividerY+20){
+  s.append(sEl('line',{x1:dividerInset,y1:dividerY,x2:scene.width-dividerInset,y2:dividerY,stroke:'#c5cfdb','stroke-width':2,'pointer-events':'none','data-role':'heading-divider'}));
+ }
  const eg=sEl('g',{id:'edges'});scene.edges.forEach((e,idx)=>{let pts=edgePath(e);if(!pts)return;const g=sEl('g',{'data-edge':e.id,class:'edge'+(edgeSelect===e.id?' selected':'')});g.append(sEl('path',{d:polyPath(pts),fill:'none',stroke:e.strokeColor||'#5A1E1E','stroke-width':e.strokeWidth||Math.max(3.5,scene.settings.stroke),'stroke-linejoin':'round','stroke-linecap':'round','marker-end':'url(#arrowhead-'+idx+')'}));g.append(sEl('path',{d:polyPath(pts),fill:'none',stroke:'transparent','stroke-width':Math.max(22,32/Math.max(zoom,.2)),'pointer-events':'stroke',class:'edge-hit'}));if(e.label){const [sx,sy]=pts[0], [nx,ny]=pts[1];const lx=sx===nx?sx+45:(sx+nx)/2,ly=sy===ny?sy-13:(sy+ny)/2;
  g.append(sEl('text',{x:lx,y:ly,'text-anchor':'middle','font-size':e.labelFont||17,'font-weight':750,fill:e.strokeColor||'#5A1E1E',class:'edge-label'},e.label));}
  if(edgeSelect===e.id){const bends=Array.isArray(e.bendPoints)&&e.bendPoints.length?e.bendPoints.map((p,i)=>({p,i})):pts.slice(1,-1).filter((p,i)=>{const prev=pts[i],next=pts[i+2];return prev&&next&&(prev[0]!==p[0]||next[0]!==p[0])&&(prev[1]!==p[1]||next[1]!==p[1]);}).map((p,i)=>({p,i}));bends.forEach(({p,i})=>g.append(sEl('circle',{cx:p[0],cy:p[1],r:10,fill:'#fff3cf',stroke:'#b7791f','stroke-width':3,'data-edge-control':e.id,'data-bend-index':i,'data-bend-x':p[0],'data-bend-y':p[1],style:'cursor:move','pointer-events':'all'})));}eg.append(g)});s.append(eg);
