@@ -4,7 +4,7 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-04 · PWM 밝기 제어",
   "subtitle": "LED1 PWM 0/25/50/100 · 기존 기능 누적 · 설계 개념도(코드·보드 미검증)",
-  "width": 1224,
+  "width": 1061,
   "height": 795,
   "headings": {
     "title": {
@@ -127,7 +127,7 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 1040,
+      "x": 841,
       "y": 400,
       "w": 300,
       "h": 70,
@@ -270,7 +270,7 @@
       "arrowSize": 16,
       "labelFont": 17,
       "via": {
-        "x": 790,
+        "x": 591,
         "y": 564
       }
     },
