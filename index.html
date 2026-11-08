@@ -594,16 +594,16 @@ function measureFlowText(text,fontSize,weight){
  return context.measureText(textValue).width;
 }
 function fitRectToText(node){
- if(!node||node.type!=='rect')return false;
+ if(!node||!['rect','page'].includes(node.type))return false;
  const fs=Number(node.fontMain||scene.settings.fontMain)||23,ss=Number(node.fontSub||scene.settings.fontSub)||18;
  const pad=Math.max(6,Number(node.pad??scene.settings.pad)||6);
  const padY=Math.max(4,Number(node.padY??scene.settings.padY??(pad-1.3333)));
- // Keep left/right 3mm. Top/bottom each reduce by 1pt (~1.33px).
+ // Tight-fit text bounds with the active minimum insets, preserving original font sizes.
  const textWidth=Math.max(measureFlowText(node.title||'',fs,750),measureFlowText(node.sub||'',ss,400));
  const inset=pad;
  const neededW=Math.ceil(((textWidth*1.08)+inset*2)/5)*5;
- const neededH=node.sub?Math.ceil((padY*2+fs*1.32+ss*1.45+10)/5)*5:
-                          Math.ceil((padY*2+fs*1.45)/5)*5;
+ const neededH=node.sub?Math.ceil((fs+ss+6+padY*2+12)/5)*5:
+                           Math.ceil((fs+padY*2+12)/5)*5;
  const w=Math.max(150,neededW),h=Math.max(62,neededH);
  const changed=node.w!==w||node.h!==h;
  node.w=w;node.h=h;
@@ -644,7 +644,7 @@ function refineRenderedText(svg){
   if(!g)continue;
   const texts=Array.from(g.querySelectorAll('text'));
   if(!texts.length)continue;
-  if(n.type==='rect'&&$('autoFitText')?.checked&&n.autoFit!==false){
+  if(['rect','page'].includes(n.type)&&$('autoFitText')?.checked&&n.autoFit!==false){
    const pad=Math.max(6,Number(n.pad??scene.settings.pad)||12);
    const padY=Math.max(4,Number(n.padY??scene.settings.padY??(pad-1.3333)));
    let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
@@ -653,7 +653,7 @@ function refineRenderedText(svg){
         top=Math.min(top,b.y);bottom=Math.max(bottom,b.y+b.height);}catch{}
    }
    if(Number.isFinite(left)&&Number.isFinite(right)&&Number.isFinite(top)&&Number.isFinite(bottom)){
-    // Symmetric sizing makes all four margins at least 3 mm around real glyphs.
+    // Keep symmetric spacing around actual glyph bounds (minimum 6px/4px).
     const w=Math.ceil((2*Math.max(n.x-left,right-n.x)+2*pad)/5)*5;
     const h=Math.ceil((2*Math.max(n.y-top,bottom-n.y)+2*padY)/5)*5;
     if(w>n.w+1){n.w=w;changed=true;}
