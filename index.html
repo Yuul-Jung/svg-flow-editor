@@ -261,7 +261,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 </style>
 </head>
 <body>
-<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v3.0</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
+<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.2</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
 <div class="toolbar">
 <label id="chapterSelectLabel" class="chapter-selector">제2부 도면
 <select id="chapterSelect" aria-label="제2부 장별 플로우차트 선택">
@@ -276,7 +276,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 <option value="09">09장 · 자동/수동 통합</option>
 <option value="10">10장 · 안전 캡스톤</option>
 </select></label>
-<button type="button" id="loadChapter" class="primary">선택 장 열기</button>
+<button type="button" id="loadChapter" class="primary">선택 장 열기</button><button type="button" id="restoreDraft" style="display:none" title="이 브라우저에 임시 저장된 편집 내용을 확인 후 복원">임시 저장본 복구</button><span id="draftStatus" role="status" style="font-size:12px"></span>
 <span class="sep"></span><label class="chapter-selector" for="pagePicker">페이지
 <select id="pagePicker" aria-label="플로우차트 페이지 선택"></select></label>
 <button type="button" id="previousPage">◀ 이전</button><button type="button" id="nextPage">다음 ▶</button>
@@ -1961,6 +1961,56 @@ $('deletePage').onclick=()=>{
  refreshPagePicker();updateUI();fitCanvas();toast('페이지 삭제 완료');
 };
 refreshPagePicker();
+// v4.2: local-only recovery snapshot. Never upload draft content to GitHub.
+const DRAFT_KEY='soc-svg-flow-editor-v42-draft';
+let lastDraftPayload='';
+function draftPayload(){
+ if(mode!=='structured')return null;
+ capturePage();
+ return JSON.stringify({version:4,format:'soc-flow-pages',activePage:pageIndex,pages:pageBook.map(clonePage)});
+}
+function saveDraft(){
+ try{
+  const payload=draftPayload();
+  if(!payload||payload===lastDraftPayload)return;
+  localStorage.setItem(DRAFT_KEY,payload);
+  lastDraftPayload=payload;
+  $('draftStatus').textContent='임시 저장됨';
+  $('restoreDraft').style.display='';
+ }catch(err){
+  $('draftStatus').textContent='임시 저장 실패 · JSON 파일로 저장하세요';
+ }
+}
+function offerDraftRecovery(){
+ try{
+  const payload=localStorage.getItem(DRAFT_KEY);
+  if(!payload)return;
+  const data=JSON.parse(payload);
+  validatePageDocument(data);
+  $('restoreDraft').style.display='';
+  $('draftStatus').textContent='복구 가능한 임시 저장본 있음';
+ }catch(err){
+  $('draftStatus').textContent='임시 저장본 오류 · JSON 파일 사용 권장';
+ }
+}
+$('restoreDraft').onclick=()=>{
+ try{
+  const data=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+  validatePageDocument(data);
+  if(!confirm('브라우저의 임시 저장본으로 현재 편집 내용을 교체할까요? 먼저 필요한 작업을 JSON으로 저장하세요.'))return;
+  pageBook=data.pages.map(clonePage);
+  pageIndex=Number.isInteger(data.activePage)&&data.activePage>=0&&data.activePage<pageBook.length?data.activePage:0;
+  scene=clonePage(pageBook[pageIndex]);
+  pageHistory.clear();history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
+  mode='structured';rawDoc=null;lastDraftPayload=JSON.stringify(data);
+  refreshPagePicker();updateUI();fitCanvas();
+  $('draftStatus').textContent='임시 저장본 복구됨';
+  toast('브라우저 임시 저장본을 복원했습니다.');
+ }catch(err){toast('복구 실패: '+err.message);}
+};
+offerDraftRecovery();
+setInterval(saveDraft,10000);
+window.addEventListener('pagehide',saveDraft);
 const previousPageUI=updateUI;
 updateUI=function(){previousPageUI();refreshPagePicker();};
 
