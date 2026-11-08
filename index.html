@@ -416,7 +416,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
  <div class="field"><label for="subtitleInput">부제</label><input id="subtitleInput"></div>
  <div class="twocol"><div class="field"><label for="pageW">도면 너비</label><input type="number" id="pageW" min="700" max="7000" step="20"></div><div class="field"><label for="fontMain">기본 글자(px)</label><input type="number" id="fontMain" min="12" max="50"></div></div>
  <div class="twocol"><div class="field"><label for="fontSub">보조 글자(px)</label><input type="number" id="fontSub" min="10" max="40"></div><div class="field"><label for="strokeW">윤곽선(px)</label><input type="number" id="strokeW" min="1" max="10" step="0.2"></div></div>
- <div class="twocol"><div class="field"><label for="gapY">세로 간격(px)</label><input type="number" id="gapY" min="16" max="130"></div><div class="field"><label for="padNode">내부 여백(px)</label><input type="number" id="padNode" min="6" max="60"></div></div>
+ <div class="twocol"><div class="field"><label for="gapY">세로 간격(px)</label><input type="number" id="gapY" min="12" max="130"></div><div class="field"><label for="padNode">내부 여백(px)</label><input type="number" id="padNode" min="6" max="60"></div></div>
  <button id="fitAllText" style="width:100%">모든 직사각형을 글자 크기에 맞춤</button>
  <button id="centerTitle" style="width:100%">제목 중앙 및 페이지 여백 정리</button>
  <div class="note">도면 제목은 왼쪽 정렬이 기본입니다. <b>기본 내부 여백: 좌우 6px · 상하 4px</b>(96dpi 기준).</div>
@@ -476,7 +476,7 @@ function baseScene(){
   ];
   const edge=(id,from,to,fp,tp,label='',route='auto')=>({id,from,to,fp,tp,label,route});
   const edges=[edge('e1','start','declare','bottom','top'),edge('e2','declare','intro','bottom','top'),edge('e3','intro','status','bottom','top'),edge('e4','status','receive','bottom','top'),edge('e5','receive','d1','bottom','top'),edge('e6','d1','cmd','right','left','예'),edge('e7','d1','d2','bottom','top','아니오'),edge('e8','d2','err1','right','left','예'),edge('e9','d2','d3','bottom','top','아니오'),edge('e10','d3','err2','right','left','예'),edge('e11','d3','repeat','bottom','top','아니오'),edge('e12','cmd','repeat','right','right','','loopRight'),edge('e13','err1','repeat','right','right','','loopRight'),edge('e14','err2','repeat','right','right','','loopRight'),edge('e15','repeat','receive','left','left','반복','loopLeft')];
-  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:24,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
+  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:16,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
 }
 let activeHeading=null,headingDrag=null;
 let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
@@ -807,7 +807,7 @@ $('compactLayout').onclick=()=>{
   }else rows.push({anchor:n.y,height:n.h,nodes:[n]});
  }
  if(rows.length<2){toast('압축할 세로 행이 없습니다.');return;}
- const gap=Math.max(16,Math.min(32,Number(scene.settings.gap)||24));
+ const gap=16;
  const oldY=new Map(scene.nodes.map(n=>[n.id,n.y]));
  let bottom=rows[0].anchor-rows[0].height/2;
  const targets=[];
