@@ -522,7 +522,7 @@
           "w": 1090,
           "h": 83,
           "title": "장치 데이터 경로",
-          "sub": "Core 출력·IRQ·상태를 외부 포트로 전달",
+          "sub": "Core 출력·상태·해당 시 IRQ 포트 연결",
           "fill": "none",
           "autoFit": true,
           "pad": 6,
