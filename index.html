@@ -261,7 +261,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 </style>
 </head>
 <body>
-<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.3</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
+<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.4</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
 <div class="toolbar">
 <label id="chapterSelectLabel" class="chapter-selector">제2부 도면
 <select id="chapterSelect" aria-label="제2부 장별 플로우차트 선택">
@@ -1998,17 +1998,17 @@ function validateChapterScene(data){
 $('loadChapter').onclick=async()=>{
  const num=$('chapterSelect').value||'01';
  const prior=chapterFileStem().slice(-2);
- if(num===prior&&mode==='structured'&&!(num==='01'&&pageBook.length===1)){toast('이미 '+num+'장 도면이 열려 있습니다.');return;}
+ // Allow explicit reload of the current chapter to receive updated GitHub JSON.
  if(!confirm('현재 편집 내용은 새 장을 열면 교체됩니다. 작업 저장(JSON)을 먼저 하셨나요?'))return;
  $('loadChapter').disabled=true;
  try{
   let next;
-  const pagesResponse=await fetch('./chapters/P2_'+num+'_pages.json',{cache:'no-cache'});
+  const pagesResponse=await fetch('./chapters/P2_'+num+'_pages.json?v=spacing40-20261108',{cache:'no-store'});
   let loaded;
   if(pagesResponse.ok)loaded=await pagesResponse.json();
   else if(num==='01')loaded=baseScene();
   else{
-   const response=await fetch('./chapters/P2_'+num+'.json',{cache:'no-cache'});
+   const response=await fetch('./chapters/P2_'+num+'.json?v=spacing40-20261108',{cache:'no-store'});
    if(!response.ok)throw Error('장별 파일 없음 (HTTP '+response.status+')');
    loaded=await response.json();
   }
