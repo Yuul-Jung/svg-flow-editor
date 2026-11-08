@@ -10,7 +10,7 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-10 · 종합 안전 제어 캡스톤",
       "subtitle": "RUN START 중심 개념도 · STOP/RESET/STATUS 별도 처리 · 코드/보드 미검증",
-      "width": 1283,
+      "width": 1212,
       "height": 929,
       "headings": {
         "title": {
@@ -36,7 +36,7 @@
         "fontMain": 23,
         "fontSub": 18,
         "stroke": 3.5,
-        "gap": 24,
+        "gap": 16,
         "pad": 6,
         "padY": 4,
         "defaultPreset": "navy"
@@ -133,7 +133,7 @@
         {
           "id": "action",
           "type": "rect",
-          "x": 1040,
+          "x": 939,
           "y": 416,
           "w": 405,
           "h": 70,
@@ -198,7 +198,7 @@
         },
         {
           "id": "page_to_detail",
-          "x": 1040,
+          "x": 939,
           "y": 824,
           "w": 330,
           "h": 70,
@@ -299,7 +299,7 @@
           "arrowSize": 16,
           "labelFont": 17,
           "via": {
-            "x": 790,
+            "x": 689,
             "y": 592
           }
         },
@@ -339,13 +339,13 @@
       "pageTitle": "RUN 안전 상태 전이 상세",
       "title": "P2-10 · RUN 안전 상태 전이 상세",
       "subtitle": "설계 세부 흐름 · 실제 RTL/C·보드 증거 별도 검증",
-      "width": 1368,
+      "width": 1337,
       "height": 835,
       "settings": {
         "fontMain": 23,
         "fontSub": 18,
         "stroke": 3.5,
-        "gap": 24,
+        "gap": 16,
         "pad": 6,
         "padY": 4,
         "defaultPreset": "navy"
@@ -416,7 +416,7 @@
         },
         {
           "id": "reject",
-          "x": 1130,
+          "x": 1069,
           "y": 322,
           "w": 395,
           "h": 70,
@@ -500,7 +500,7 @@
         },
         {
           "id": "page_to_overview",
-          "x": 1130,
+          "x": 1069,
           "y": 730,
           "w": 330,
           "h": 70,
