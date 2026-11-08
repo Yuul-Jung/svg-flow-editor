@@ -4,8 +4,8 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-04 · PWM 밝기 제어",
   "subtitle": "LED1 PWM 0/25/50/100 · 기존 기능 누적 · 설계 개념도(코드·보드 미검증)",
-  "width": 1061,
-  "height": 795,
+  "width": 1101,
+  "height": 935,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 16,
+    "gap": 44,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 281,
+      "y": 309,
       "w": 285,
       "h": 70,
       "title": "UART 명령·상태 확인",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 400,
+      "y": 456,
       "w": 370,
       "h": 135,
       "title": "PWM 변경 요청?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 518,
+      "y": 602,
       "w": 275,
       "h": 70,
       "title": "기존 기능 처리",
@@ -127,8 +127,8 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 841,
-      "y": 400,
+      "x": 881,
+      "y": 456,
       "w": 300,
       "h": 70,
       "title": "PWM 듀티 변경",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 604,
+      "y": 716,
       "w": 235,
       "h": 70,
       "title": "출력 상태 확인",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 690,
+      "y": 830,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 591,
-        "y": 564
+        "y": 663
       }
     },
     {
