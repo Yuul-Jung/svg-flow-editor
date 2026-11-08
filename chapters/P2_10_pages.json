@@ -297,7 +297,11 @@
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
-          "labelFont": 17
+          "labelFont": 17,
+          "via": {
+            "x": 689,
+            "y": 755
+          }
         },
         {
           "id": "e7",
