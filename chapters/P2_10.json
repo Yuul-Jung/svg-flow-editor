@@ -4,8 +4,8 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-10 · 종합 안전 제어 캡스톤",
   "subtitle": "RUN START 중심 개념도 · STOP/RESET/STATUS 별도 처리 · 코드/보드 미검증",
-  "width": 1212,
-  "height": 835,
+  "width": 1252,
+  "height": 935,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 16,
+    "gap": 44,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 289,
+      "y": 309,
       "w": 380,
       "h": 70,
       "title": "RUN 명령·가드 상태 확인",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 416,
+      "y": 456,
       "w": 460,
       "h": 135,
       "title": "RUN START 허용?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 542,
+      "y": 602,
       "w": 460,
       "h": 70,
       "title": "비기동 명령·거부 처리",
@@ -127,8 +127,8 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 939,
-      "y": 416,
+      "x": 979,
+      "y": 456,
       "w": 405,
       "h": 70,
       "title": "RUNNING 진입·모터 구동 요청",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 636,
+      "y": 716,
       "w": 390,
       "h": 70,
       "title": "RUN STATUS·거부 원인 보고",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 730,
+      "y": 830,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 689,
-        "y": 592
+        "y": 663
       }
     },
     {
