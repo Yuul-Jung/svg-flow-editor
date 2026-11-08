@@ -10,8 +10,8 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-08 · XADC 아날로그 입력",
       "subtitle": "ADC READ/PWM 개념도 · 최신 변환값 여부 미검증 · 코드/보드 미검증",
-      "width": 1459,
-      "height": 1109,
+      "width": 1273,
+      "height": 1090,
       "headings": {
         "title": {
           "x": 299,
@@ -198,8 +198,8 @@
         },
         {
           "id": "page_to_detail",
-          "x": 1260,
-          "y": 1040,
+          "x": 1040,
+          "y": 1015,
           "w": 330,
           "h": 70,
           "title": "도면 안내 · 2페이지 열기",
@@ -339,8 +339,8 @@
       "pageTitle": "XADC 측정·PWM 연계 상세",
       "title": "P2-08 · XADC 측정·PWM 연계 상세",
       "subtitle": "설계 세부 흐름 · 실제 RTL/C·보드 증거 별도 검증",
-      "width": 1372,
-      "height": 994,
+      "width": 1343,
+      "height": 1000,
       "settings": {
         "fontMain": 23,
         "fontSub": 18,
