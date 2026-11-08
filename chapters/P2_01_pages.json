@@ -39,7 +39,7 @@
         "stroke": 3.5,
         "gap": 38,
         "pad": 12,
-        "padY": 10.67,
+        "padY": 8,
         "defaultPreset": "navy"
       },
       "nodes": [
@@ -60,7 +60,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -81,7 +81,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -102,7 +102,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy",
           "type": "diamond"
@@ -124,7 +124,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -145,7 +145,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -166,7 +166,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -187,7 +187,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -208,7 +208,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy",
           "type": "page",
@@ -357,7 +357,7 @@
         "stroke": 3.5,
         "gap": 38,
         "pad": 12,
-        "padY": 10.67,
+        "padY": 8,
         "defaultPreset": "navy"
       },
       "nodes": [
@@ -378,7 +378,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -399,7 +399,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy",
           "type": "diamond"
@@ -421,7 +421,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -442,7 +442,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -463,7 +463,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy"
         },
@@ -484,7 +484,7 @@
           "fontMain": 23,
           "fontSub": 18,
           "pad": 12,
-          "padY": 10.67,
+          "padY": 8,
           "textAlign": "center",
           "preset": "navy",
           "type": "page",
