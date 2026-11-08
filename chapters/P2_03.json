@@ -5,7 +5,7 @@
   "title": "P2-03 · 버튼 입력과 인터럽트",
   "subtitle": "BTNU/BTND/BTNL/BTNR · 짧게/길게 · AXI IRQ · 설계 개념도(코드·보드 미검증)",
   "width": 1259,
-  "height": 835,
+  "height": 795,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 24,
+    "gap": 16,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 289,
+      "y": 281,
       "w": 345,
       "h": 70,
       "title": "버튼 입력·UART 명령 감시",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 416,
+      "y": 400,
       "w": 390,
       "h": 135,
       "title": "버튼 이벤트 발생?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 542,
+      "y": 518,
       "w": 270,
       "h": 70,
       "title": "기존 명령 처리",
@@ -128,7 +128,7 @@
       "id": "action",
       "type": "rect",
       "x": 1040,
-      "y": 416,
+      "y": 400,
       "w": 370,
       "h": 70,
       "title": "버튼 이벤트 전달",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 636,
+      "y": 604,
       "w": 275,
       "h": 70,
       "title": "이벤트 상태 확인",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 730,
+      "y": 690,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 790,
-        "y": 592
+        "y": 564
       }
     },
     {
