@@ -805,7 +805,7 @@
           "w": 1090,
           "h": 85,
           "title": "핵심 해설",
-          "sub": "2FF가 전압 보호를 대신하지 않음.",
+          "sub": "candidate 변화 중 stable_dark는 이전 확정값 유지. 2FF는 전압 보호 수단이 아님.",
           "fill": "#F3F6FA",
           "autoFit": true,
           "pad": 6,
