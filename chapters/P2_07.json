@@ -4,8 +4,8 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-07 · DC 모터 안전 제어",
   "subtitle": "L298N · 방향·정지·안전 데드타임 · 설계 개념도(코드·보드 미검증)",
-  "width": 1049,
-  "height": 835,
+  "width": 1089,
+  "height": 935,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 16,
+    "gap": 44,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 289,
+      "y": 309,
       "w": 325,
       "h": 70,
       "title": "모터 명령·거리 상태 확인",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 416,
+      "y": 456,
       "w": 415,
       "h": 135,
       "title": "모터 구동 허용?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 542,
+      "y": 602,
       "w": 310,
       "h": 70,
       "title": "안전 정지",
@@ -127,8 +127,8 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 846,
-      "y": 416,
+      "x": 886,
+      "y": 456,
       "w": 265,
       "h": 70,
       "title": "모터 출력 제어",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 636,
+      "y": 716,
       "w": 300,
       "h": 70,
       "title": "상태 보고",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 730,
+      "y": 830,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 596,
-        "y": 592
+        "y": 663
       }
     },
     {
