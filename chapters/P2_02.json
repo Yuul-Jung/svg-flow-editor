@@ -4,7 +4,7 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-02 · FND 4자리 숫자 표시",
   "subtitle": "01장 LED0 명령 유지 + 02장 FND 추가 · C 명령 처리 개념도 · 보드 검증 별도",
-  "width": 1309,
+  "width": 1306,
   "height": 795,
   "headings": {
     "title": {
@@ -127,7 +127,7 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 1040,
+      "x": 1001,
       "y": 400,
       "w": 470,
       "h": 70,
@@ -270,7 +270,7 @@
       "arrowSize": 16,
       "labelFont": 17,
       "via": {
-        "x": 790,
+        "x": 751,
         "y": 564
       }
     },
