@@ -510,6 +510,26 @@ function edgeControlPoint(e,pts=edgePath(e)){if(e.via&&Number.isFinite(+e.via.x)
  */
 function inspectDiagramQuality(){
  const findings=[],nodes=scene.nodes,edges=scene.edges;
+ // Validate actual rendered glyphs, not only numeric JSON padding.
+ for(const n of nodes){
+  if(n.type==='diamond')continue; // diamonds use scaled text
+  const g=Array.from($('canvas').querySelectorAll('#nodes [data-node]'))
+    .find(el=>el.dataset.node===n.id);
+  if(!g)continue;
+  const px=Math.max(6,Number(n.pad??scene.settings.pad??6));
+  const py=Math.max(4,Number(n.padY??scene.settings.padY??4));
+  const L=n.x-n.w/2+px,R=n.x+n.w/2-px;
+  const T=n.y-n.h/2+py,B=n.y+n.h/2-py;
+  for(const t of g.querySelectorAll('text')){
+   try{
+    const b=t.getBBox();
+    if(b.x<L-2||b.x+b.width>R+2||b.y<T-2||b.y+b.height>B+2){
+     findings.push({message:'글자 경계 초과: '+n.id,nodes:[n.id],edges:[]});
+     break;
+    }
+   }catch{}
+  }
+ }
  const bounds=n=>({l:n.x-n.w/2,r:n.x+n.w/2,t:n.y-n.h/2,b:n.y+n.h/2});
  const rects=nodes.map(bounds);
  for(let i=0;i<nodes.length;i++){
@@ -594,16 +614,16 @@ function measureFlowText(text,fontSize,weight){
  return context.measureText(textValue).width;
 }
 function fitRectToText(node){
- if(!node||node.type!=='rect')return false;
+ if(!node||!['rect','page'].includes(node.type))return false;
  const fs=Number(node.fontMain||scene.settings.fontMain)||23,ss=Number(node.fontSub||scene.settings.fontSub)||18;
  const pad=Math.max(6,Number(node.pad??scene.settings.pad)||6);
  const padY=Math.max(4,Number(node.padY??scene.settings.padY??(pad-1.3333)));
- // Keep left/right 3mm. Top/bottom each reduce by 1pt (~1.33px).
+ // Tight-fit text bounds with the active minimum insets, preserving original font sizes.
  const textWidth=Math.max(measureFlowText(node.title||'',fs,750),measureFlowText(node.sub||'',ss,400));
  const inset=pad;
  const neededW=Math.ceil(((textWidth*1.08)+inset*2)/5)*5;
- const neededH=node.sub?Math.ceil((padY*2+fs*1.32+ss*1.45+10)/5)*5:
-                          Math.ceil((padY*2+fs*1.45)/5)*5;
+ const neededH=node.sub?Math.ceil((fs+ss+6+padY*2+12)/5)*5:
+                           Math.ceil((fs+padY*2+12)/5)*5;
  const w=Math.max(150,neededW),h=Math.max(62,neededH);
  const changed=node.w!==w||node.h!==h;
  node.w=w;node.h=h;
@@ -644,7 +664,7 @@ function refineRenderedText(svg){
   if(!g)continue;
   const texts=Array.from(g.querySelectorAll('text'));
   if(!texts.length)continue;
-  if(n.type==='rect'&&$('autoFitText')?.checked&&n.autoFit!==false){
+  if(['rect','page'].includes(n.type)&&$('autoFitText')?.checked&&n.autoFit!==false){
    const pad=Math.max(6,Number(n.pad??scene.settings.pad)||12);
    const padY=Math.max(4,Number(n.padY??scene.settings.padY??(pad-1.3333)));
    let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
@@ -653,7 +673,7 @@ function refineRenderedText(svg){
         top=Math.min(top,b.y);bottom=Math.max(bottom,b.y+b.height);}catch{}
    }
    if(Number.isFinite(left)&&Number.isFinite(right)&&Number.isFinite(top)&&Number.isFinite(bottom)){
-    // Symmetric sizing makes all four margins at least 3 mm around real glyphs.
+    // Keep symmetric spacing around actual glyph bounds (minimum 6px/4px).
     const w=Math.ceil((2*Math.max(n.x-left,right-n.x)+2*pad)/5)*5;
     const h=Math.ceil((2*Math.max(n.y-top,bottom-n.y)+2*padY)/5)*5;
     if(w>n.w+1){n.w=w;changed=true;}
