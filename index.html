@@ -344,8 +344,8 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
    <label>글자색<input id="quickTextColor" type="color" value="#172439"></label>
    <label>테두리색<input id="quickStrokeColor" type="color" value="#1f3a5f"></label>
    <label>테두리 두께(px)<input id="quickStrokeWidth" type="number" min="1" max="15" step="0.5"></label>
-   <label>좌우 여백(px)<input id="quickPad" type="number" min="12" max="80" step="1"></label>
-   <label>상하 여백(px)<input id="quickPadY" type="number" min="8" max="80" step="0.33"></label>
+   <label>좌우 여백(px)<input id="quickPad" type="number" min="6" max="80" step="1"></label>
+   <label>상하 여백(px)<input id="quickPadY" type="number" min="4" max="80" step="0.33"></label>
    <label>중심 X(px)<input id="quickX" type="number" step="5"></label>
    <label>중심 Y(px)<input id="quickY" type="number" step="5"></label>
    <label>가로 크기(px)<input id="quickW" type="number" min="120" max="1800" step="5"></label>
@@ -375,7 +375,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
    <label class="wide-property">부제<input id="quickDocSubtitle" type="text" aria-label="도면 부제"></label>
    <label>기본 글자(px)<input id="quickGlobalFont" type="number" min="12" max="50" step="1"></label>
    <label>보조 글자(px)<input id="quickGlobalSub" type="number" min="10" max="40" step="1"></label>
-   <label>기본 여백(px)<input id="quickGlobalPad" type="number" min="12" max="80" step="1"></label>
+   <label>기본 여백(px)<input id="quickGlobalPad" type="number" min="6" max="80" step="1"></label>
    <label>기본 윤곽선(px)<input id="quickGlobalStroke" type="number" min="1" max="10" step="0.5"></label>
    <label>도면 너비(px)<input id="quickPageW" type="number" min="700" max="7000" step="20"></label>
    <label>세로 간격(px)<input id="quickGlobalGap" type="number" min="20" max="130" step="1"></label>
@@ -398,7 +398,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
     <label><input type="checkbox" id="batchDoFonts" checked> 글자 크기(px)</label>
     <div class="batch-fields"><label>첫 줄 <input type="number" id="batchFontMain" value="23" min="10" max="80"></label><label>둘째 줄 <input type="number" id="batchFontSub" value="18" min="9" max="60"></label></div>
     <label><input type="checkbox" id="batchDoPadding" checked> 내부 여백(px)</label>
-    <div class="batch-fields"><label>좌우 여백(px)<input type="number" id="batchPad" value="12" min="12" max="80"></label><label>상하 여백(px)<input type="number" id="batchPadY" value="10.67" min="8" max="80" step="0.33"></label></div>
+    <div class="batch-fields"><label>좌우 여백(px)<input type="number" id="batchPad" value="6" min="6" max="80"></label><label>상하 여백(px)<input type="number" id="batchPadY" value="4" min="4" max="80" step="0.33"></label></div>
     <label><input type="checkbox" id="batchDoOutline" checked> 윤곽선</label>
     <div class="batch-fields"><label>색상 <input type="color" id="batchOutlineColor" value="#1f3a5f"></label><label>굵기 <input type="number" id="batchOutlineWidth" value="3.5" min="1" max="12" step=".5"></label></div>
     <label><input type="checkbox" id="batchDoFill"> 배경색 변경</label>
@@ -416,10 +416,10 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
  <div class="field"><label for="subtitleInput">부제</label><input id="subtitleInput"></div>
  <div class="twocol"><div class="field"><label for="pageW">도면 너비</label><input type="number" id="pageW" min="700" max="7000" step="20"></div><div class="field"><label for="fontMain">기본 글자(px)</label><input type="number" id="fontMain" min="12" max="50"></div></div>
  <div class="twocol"><div class="field"><label for="fontSub">보조 글자(px)</label><input type="number" id="fontSub" min="10" max="40"></div><div class="field"><label for="strokeW">윤곽선(px)</label><input type="number" id="strokeW" min="1" max="10" step="0.2"></div></div>
- <div class="twocol"><div class="field"><label for="gapY">세로 간격(px)</label><input type="number" id="gapY" min="20" max="130"></div><div class="field"><label for="padNode">내부 여백(px)</label><input type="number" id="padNode" min="12" max="60"></div></div>
+ <div class="twocol"><div class="field"><label for="gapY">세로 간격(px)</label><input type="number" id="gapY" min="20" max="130"></div><div class="field"><label for="padNode">내부 여백(px)</label><input type="number" id="padNode" min="6" max="60"></div></div>
  <button id="fitAllText" style="width:100%">모든 직사각형을 글자 크기에 맞춤</button>
  <button id="centerTitle" style="width:100%">제목 중앙 및 페이지 여백 정리</button>
- <div class="note">도면 제목은 왼쪽 정렬이 기본입니다. <b>최소 내부 여백 12px ≈ 3mm</b>(96dpi 기준).</div>
+ <div class="note">도면 제목은 왼쪽 정렬이 기본입니다. <b>기본 내부 여백: 좌우 6px · 상하 4px</b>(96dpi 기준).</div>
 </div>
 
 <div id="headingSettings" style="display:none">
@@ -476,7 +476,7 @@ function baseScene(){
   ];
   const edge=(id,from,to,fp,tp,label='',route='auto')=>({id,from,to,fp,tp,label,route});
   const edges=[edge('e1','start','declare','bottom','top'),edge('e2','declare','intro','bottom','top'),edge('e3','intro','status','bottom','top'),edge('e4','status','receive','bottom','top'),edge('e5','receive','d1','bottom','top'),edge('e6','d1','cmd','right','left','예'),edge('e7','d1','d2','bottom','top','아니오'),edge('e8','d2','err1','right','left','예'),edge('e9','d2','d3','bottom','top','아니오'),edge('e10','d3','err2','right','left','예'),edge('e11','d3','repeat','bottom','top','아니오'),edge('e12','cmd','repeat','right','right','','loopRight'),edge('e13','err1','repeat','right','right','','loopRight'),edge('e14','err2','repeat','right','right','','loopRight'),edge('e15','repeat','receive','left','left','반복','loopLeft')];
-  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:38,pad:12,padY:8,defaultPreset:'navy'},nodes,edges};
+  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:38,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
 }
 let activeHeading=null,headingDrag=null;
 let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
@@ -596,8 +596,8 @@ function measureFlowText(text,fontSize,weight){
 function fitRectToText(node){
  if(!node||node.type!=='rect')return false;
  const fs=Number(node.fontMain||scene.settings.fontMain)||23,ss=Number(node.fontSub||scene.settings.fontSub)||18;
- const pad=Math.max(12,Number(node.pad??scene.settings.pad)||12);
- const padY=Math.max(8,Number(node.padY??scene.settings.padY??(pad-1.3333)));
+ const pad=Math.max(6,Number(node.pad??scene.settings.pad)||12);
+ const padY=Math.max(4,Number(node.padY??scene.settings.padY??(pad-1.3333)));
  // Keep left/right 3mm. Top/bottom each reduce by 1pt (~1.33px).
  const textWidth=Math.max(measureFlowText(node.title||'',fs,750),measureFlowText(node.sub||'',ss,400));
  const inset=pad;
@@ -627,7 +627,7 @@ function drawText(group,n){
  const titleY=hasSub?n.y-(subSize+gap)/2:n.y;
  const subY=n.y+(titleSize+gap)/2;
  const align=n.textAlign||'center';
- const pad=Math.max(12,Number(n.pad||scene.settings.pad)||12);
+ const pad=Math.max(6,Number(n.pad||scene.settings.pad)||12);
  const textX=align==='left'?n.x-n.w/2+pad:align==='right'?n.x+n.w/2-pad:n.x;
  const common={'text-anchor':align==='left'?'start':align==='right'?'end':'middle',
                'dominant-baseline':'middle','pointer-events':'none'};
@@ -645,8 +645,8 @@ function refineRenderedText(svg){
   const texts=Array.from(g.querySelectorAll('text'));
   if(!texts.length)continue;
   if(n.type==='rect'&&$('autoFitText')?.checked&&n.autoFit!==false){
-   const pad=Math.max(12,Number(n.pad??scene.settings.pad)||12);
-   const padY=Math.max(8,Number(n.padY??scene.settings.padY??(pad-1.3333)));
+   const pad=Math.max(6,Number(n.pad??scene.settings.pad)||12);
+   const padY=Math.max(4,Number(n.padY??scene.settings.padY??(pad-1.3333)));
    let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
    for(const t of texts){
     try{const b=t.getBBox();left=Math.min(left,b.x);right=Math.max(right,b.x+b.width);
@@ -1396,7 +1396,7 @@ $('applyBatch').onclick=()=>{
  const paddingY=Number(batchGet('batchPadY').value);
  const outlineWidth=Number(batchGet('batchOutlineWidth').value);
  if(batchGet('batchDoFonts').checked&&(!Number.isFinite(fMain)||fMain<10||fMain>80||!Number.isFinite(fSub)||fSub<9||fSub>60)){toast('글자 크기 범위를 확인해 주세요.');return;}
- if(batchGet('batchDoPadding').checked&&(!Number.isFinite(padding)||padding<12||padding>80||!Number.isFinite(paddingY)||paddingY<8||paddingY>80)){toast('좌우 여백 12~80px, 상하 여백 8~80px 범위를 확인하세요.');return;}
+ if(batchGet('batchDoPadding').checked&&(!Number.isFinite(padding)||padding<6||padding>80||!Number.isFinite(paddingY)||paddingY<4||paddingY>80)){toast('좌우 여백 6~80px, 상하 여백 4~80px 범위를 확인하세요.');return;}
  if(batchGet('batchDoOutline').checked&&(!Number.isFinite(outlineWidth)||outlineWidth<1||outlineWidth>12)){toast('윤곽선 굵기를 확인해 주세요.');return;}
  checkpoint();
  for(const n of candidates){
