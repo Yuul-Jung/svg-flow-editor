@@ -7,7 +7,7 @@
 - **선수·기존 기능** — 05장 CdS/PWM·FND 유지
 - **이번 장 추가/재사용** — hc_sr04_core TRIG/WAIT/ECHO/COOL
 - **핵심 모듈·연결** — p2_06_axi_sonic 상태·거리 레지스터
-- **출력·기능·안전** — LED2 sonar_alert / motor unsafe 경계
+- **출력·기능·안전** — LED2 sonic_alert / 모터 안전 신호
 - **검증 경계** — Echo 5V 입력 레벨 변환 필수
 
 ## 2. 모듈별 실제 입출력·제어 관계
