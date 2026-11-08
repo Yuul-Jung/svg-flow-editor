@@ -476,7 +476,7 @@ function baseScene(){
   ];
   const edge=(id,from,to,fp,tp,label='',route='auto')=>({id,from,to,fp,tp,label,route});
   const edges=[edge('e1','start','declare','bottom','top'),edge('e2','declare','intro','bottom','top'),edge('e3','intro','status','bottom','top'),edge('e4','status','receive','bottom','top'),edge('e5','receive','d1','bottom','top'),edge('e6','d1','cmd','right','left','예'),edge('e7','d1','d2','bottom','top','아니오'),edge('e8','d2','err1','right','left','예'),edge('e9','d2','d3','bottom','top','아니오'),edge('e10','d3','err2','right','left','예'),edge('e11','d3','repeat','bottom','top','아니오'),edge('e12','cmd','repeat','right','right','','loopRight'),edge('e13','err1','repeat','right','right','','loopRight'),edge('e14','err2','repeat','right','right','','loopRight'),edge('e15','repeat','receive','left','left','반복','loopLeft')];
-  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:44,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
+  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:40,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
 }
 let activeHeading=null,headingDrag=null;
 let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
@@ -805,7 +805,7 @@ function compactHorizontalColumns(){
  const left=scene.nodes.filter(n=>n.x===xs[0]),right=scene.nodes.filter(n=>n.x===xs[1]);
  const rightEdge=Math.max(...left.map(n=>n.x+n.w/2));
  const leftEdge=Math.min(...right.map(n=>n.x-n.w/2));
- const delta=Math.round(rightEdge+56-leftEdge);
+ const delta=Math.round(rightEdge+40-leftEdge);
  if(!delta)return false;
  right.forEach(n=>n.x+=delta);
  scene.edges.forEach(e=>{
@@ -827,8 +827,8 @@ $('compactLayout').onclick=()=>{
    last.nodes.push(n);last.height=Math.max(last.height,n.h);
   }else rows.push({anchor:n.y,height:n.h,nodes:[n]});
  }
- if(rows.length<2){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 56px로 정리했습니다.');}else toast('정리할 세로 행이 없습니다.');return;}
- const gap=44;
+ if(rows.length<2){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 40px로 정리했습니다.');}else toast('정리할 세로 행이 없습니다.');return;}
+ const gap=40;
  const oldY=new Map(scene.nodes.map(n=>[n.id,n.y]));
  let bottom=rows[0].anchor-rows[0].height/2;
  const targets=[];
@@ -838,7 +838,7 @@ $('compactLayout').onclick=()=>{
   bottom=y+row.height/2;
  }
  const changed=targets.some(t=>Math.abs(t.now-t.old)>1);
- if(!changed){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 56px로 정리했습니다.');}else toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
+ if(!changed){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 40px로 정리했습니다.');}else toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
  checkpoint();
  for(let i=0;i<rows.length;i++){
   const delta=targets[i].now-targets[i].old;
@@ -863,7 +863,7 @@ $('compactLayout').onclick=()=>{
  scene.settings.gap=gap;
  const maxBottom=Math.max(...scene.nodes.map(n=>n.y+n.h/2));
  scene.height=Math.max(400,Math.ceil(maxBottom+70));
- updateUI();toast('가로 56px·세로 44px 기준으로 정리했습니다.');
+ updateUI();toast('가로·세로 40px 기준으로 정리했습니다.');
 };
 $('autoLayout').onclick=()=>{if(mode!=='structured')return;checkpoint();let main=scene.nodes.filter(n=>n.x<scene.width*.58).sort((a,b)=>a.y-b.y),side=scene.nodes.filter(n=>n.x>=scene.width*.58).sort((a,b)=>a.y-b.y);let maxW=Math.max(...main.map(n=>n.w),500);let mx=scene.width*.43,rx=scene.width*.77;let y=158;for(const n of main){n.x=mx;n.y=y;y+=n.h+scene.settings.gap;}for(const n of side){const src=scene.edges.find(e=>e.to===n.id&&e.fp==='right');const an=src&&getNode(src.from);n.x=rx;if(an)n.y=an.y;}scene.height=Math.max(scene.height,y+80);updateUI();toast('수직 배치를 적용했습니다. 연결선도 자동 재계산됩니다.')};
 $('alignX').onclick=()=>{if(mode!=='structured'||selected.size<2){toast('Shift+클릭으로 2개 이상 선택하세요.');return;}checkpoint();let list=[...selected].map(getNode);let x=list.reduce((a,n)=>a+n.x,0)/list.length;list.forEach(n=>n.x=Math.round(x));updateUI()};
