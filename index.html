@@ -483,6 +483,9 @@ let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
 let scene=baseScene(),mode='structured',rawDoc=null,rawSelected=null,selected=new Set(),edgeSelect=null,connecting=false,connectSource=null,zoom=0.8,history=[],future=[],drag=null,historyLast=0;
 const esc=s=>String(s??'');
 let pageBook=[JSON.parse(JSON.stringify(scene))],pageIndex=0;
+const pageHistory=new Map();
+function savePageHistory(){pageHistory.set(pageIndex,{history:history.map(clonePage),future:future.map(clonePage)});}
+function restorePageHistory(){const saved=pageHistory.get(pageIndex);history=saved?saved.history.map(clonePage):[];future=saved?saved.future.map(clonePage):[];}
 function cloneScene(){return JSON.parse(JSON.stringify(scene))}
 function checkpoint(){if(mode!=='structured')return;history.push(cloneScene());if(history.length>70)history.shift();future=[];updateUndo()}
 function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length}
@@ -610,7 +613,7 @@ function ensureHeadingChartGap(){
  });
  scene.height+=shift;
 }
-function render(){if(mode==='raw'){renderRaw();return}ensureHeadingChartGap();const s=$('canvas');s.replaceChildren();s.setAttribute('width',scene.width);s.setAttribute('height',scene.height);s.setAttribute('viewBox',`0 0 ${scene.width} ${scene.height}`);
+function render(){if(mode==='raw'){renderRaw();return}const s=$('canvas');s.replaceChildren();s.setAttribute('width',scene.width);s.setAttribute('height',scene.height);s.setAttribute('viewBox',`0 0 ${scene.width} ${scene.height}`);
  const defs=sEl('defs');
  for(const [i,e] of scene.edges.entries()){
   const sz=Math.max(7,Math.min(32,Number(e.arrowSize)||16));
@@ -1900,8 +1903,8 @@ function goToPage(i){
  if(mode!=='structured'){toast('외부 SVG 편집 모드에서는 페이지를 전환할 수 없습니다.');return;}
  if(!Number.isInteger(i)||i<0||i>=pageBook.length){toast('존재하지 않는 페이지입니다.');return;}
  if(i===pageIndex)return;
- capturePage();pageIndex=i;scene=clonePage(pageBook[i]);
- history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
+ capturePage();savePageHistory();pageIndex=i;scene=clonePage(pageBook[i]);
+ restorePageHistory();selected.clear();edgeSelect=null;activeHeading=null;
  refreshPagePicker();updateUI();fitCanvas();
  $('fileStatus').textContent=chapterFileStem()+' · '+(i+1)+' / '+pageBook.length+' 페이지';
  toast((i+1)+'페이지로 이동했습니다.');
