@@ -261,7 +261,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 </style>
 </head>
 <body>
-<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.2</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
+<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.3</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
 <div class="toolbar">
 <label id="chapterSelectLabel" class="chapter-selector">제2부 도면
 <select id="chapterSelect" aria-label="제2부 장별 플로우차트 선택">
@@ -298,7 +298,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
   <div class="source-actions"><button type="button" id="copySvgSource">SVG 코드 복사</button><button type="button" id="closeSource2">닫기</button></div>
 </dialog>
 <div class="layout">
-<section class="stage"><div id="viewport"><div id="work"><svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1380" height="1570" viewBox="0 0 1380 1570" aria-label="편집 가능한 수직형 플로우차트"></svg></div></div></section>
+<section class="stage"><div id="diagnostics" style="display:none;background:#fff;border:1px solid #c9d2df;margin:8px;padding:12px;border-radius:7px;max-height:240px;overflow:auto" aria-live="polite"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><strong id="diagnosticsTitle">도면 검사 결과</strong><button type="button" id="closeDiagnostics">닫기</button></div><div id="diagnosticsItems"></div><p style="font-size:12px;color:#5e6b80">기하학적 참고 검사이며 RTL·합성·실물 검증이 아닙니다.</p></div><div id="viewport"><div id="work"><svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1380" height="1570" viewBox="0 0 1380 1570" aria-label="편집 가능한 수직형 플로우차트"></svg></div></div></section>
 <div id="panelSplitter" role="separator" tabindex="0" aria-orientation="vertical"
      aria-label="오른쪽 편집창 너비 조절" aria-valuemin="320" aria-valuemax="900"
      aria-valuenow="600" title="좌우로 드래그하여 편집창 너비 조절 · 더블클릭 초기화"></div>
@@ -515,11 +515,11 @@ function inspectDiagramQuality(){
  for(let i=0;i<nodes.length;i++){
   const a=rects[i],n=nodes[i];
   if(a.l<0||a.t<0||a.r>scene.width||a.b>scene.height)
-   findings.push('페이지 이탈: '+n.id+' ('+String(n.title||'').slice(0,24)+')');
+   findings.push({message:'페이지 이탈: '+n.id+' ('+String(n.title||'').slice(0,24)+')',nodes:[n.id],edges:[]});
   for(let j=i+1;j<nodes.length;j++){
    const b=rects[j];
    if(Math.min(a.r,b.r)-Math.max(a.l,b.l)>2&&Math.min(a.b,b.b)-Math.max(a.t,b.t)>2)
-    findings.push('도형 영역 겹침(확인 필요): '+n.id+' ↔ '+nodes[j].id);
+    findings.push({message:'도형 영역 겹침(확인 필요): '+n.id+' ↔ '+nodes[j].id,nodes:[n.id,nodes[j].id],edges:[]});
   }
  }
  const segments=edges.map(e=>{
@@ -540,19 +540,47 @@ function inspectDiagramQuality(){
    const h=p.axis==='h'?p:q,v=p.axis==='v'?p:q;
    if(v.c>h.lo+1&&v.c<h.hi-1&&h.c>v.lo+1&&h.c<v.hi-1)crossed=true;
   }
-  if(crossed)findings.push('연결선 교차(확인 필요): '+a.id+' ↔ '+b.id);
+  if(crossed)findings.push({message:'연결선 교차(확인 필요): '+a.id+' ↔ '+b.id,nodes:[],edges:[a.id,b.id]});
  }
  return findings;
 }
+function focusDiagnostic(item){
+ selected=new Set(item.nodes.filter(id=>!!getNode(id)));
+ edgeSelect=item.edges.find(id=>scene.edges.some(e=>e.id===id))||null;
+ activeHeading=null;
+ updateUI();highlightStatus();
+ const pts=item.nodes.map(id=>getNode(id)).filter(Boolean).map(n=>[n.x,n.y]);
+ for(const id of item.edges){
+  const edge=scene.edges.find(e=>e.id===id);
+  if(edge){const path=edgePath(edge);if(path)pts.push(...path);}
+ }
+ if(pts.length){
+  const x=pts.reduce((a,p)=>a+p[0],0)/pts.length;
+  const y=pts.reduce((a,p)=>a+p[1],0)/pts.length;
+  const viewport=$('viewport');
+  viewport.scrollLeft=Math.max(0,x*zoom-viewport.clientWidth/2);
+  viewport.scrollTop=Math.max(0,y*zoom-viewport.clientHeight/2);
+ }
+}
+$('closeDiagnostics').onclick=()=>{$('diagnostics').style.display='none';};
 $('inspectDiagram').onclick=()=>{
  if(mode!=='structured'){toast('구조화 도면에서만 검사할 수 있습니다.');return;}
- const findings=inspectDiagramQuality();
- const summary=findings.length?'검토 항목 '+findings.length+'건':'검사 범위 내 특이사항 없음';
- const report='도면 품질 검사 · '+(pageIndex+1)+'페이지\\n'+summary+
-  '\\n\\n'+(findings.length?findings.slice(0,60).join('\\n'):'도형 경계 상자·페이지 범위·직교 연결선 교차 검사 완료')+
-  (findings.length>60?'\\n... 나머지 '+(findings.length-60)+'건 생략':'')+
-  '\\n\\n※ 기하학적 참고 검사입니다. RTL·합성·실물 동작 검증이 아닙니다.';
- alert(report);
+ const findings=inspectDiagramQuality(),items=$('diagnosticsItems');
+ items.replaceChildren();
+ $('diagnosticsTitle').textContent='도면 품질 검사 · '+(pageIndex+1)+'페이지 · '+findings.length+'건';
+ if(!findings.length){
+  const p=document.createElement('p');p.textContent='검사 범위 내 특이사항이 없습니다.';items.append(p);
+ }else{
+  findings.slice(0,100).forEach((finding,i)=>{
+   const button=document.createElement('button');
+   button.type='button';button.style.cssText='display:block;width:100%;white-space:normal;text-align:left;margin:5px 0';
+   button.textContent=(i+1)+'. '+finding.message;
+   button.onclick=()=>focusDiagnostic(finding);
+   items.append(button);
+  });
+  if(findings.length>100){const p=document.createElement('p');p.textContent='추가 '+(findings.length-100)+'건은 표시하지 않았습니다.';items.append(p);}
+ }
+ $('diagnostics').style.display='block';
 };
 function polyPath(points){return 'M '+points.map(p=>p.join(' ')).join(' L ')}
 
