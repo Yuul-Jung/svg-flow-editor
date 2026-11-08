@@ -4,8 +4,8 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-08 · XADC 아날로그 입력",
   "subtitle": "ADC READ/PWM 개념도 · 최신 변환값 여부 미검증 · 코드/보드 미검증",
-  "width": 1192,
-  "height": 835,
+  "width": 1232,
+  "height": 935,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 16,
+    "gap": 44,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 289,
+      "y": 309,
       "w": 445,
       "h": 70,
       "title": "ADC 명령·측정 레지스터 확인",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 416,
+      "y": 456,
       "w": 460,
       "h": 135,
       "title": "ADC 명령인가?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 542,
+      "y": 602,
       "w": 315,
       "h": 70,
       "title": "기존 명령·오류 처리",
@@ -127,8 +127,8 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 929,
-      "y": 416,
+      "x": 969,
+      "y": 456,
       "w": 385,
       "h": 70,
       "title": "ADC 레지스터 값 사용",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 636,
+      "y": 716,
       "w": 345,
       "h": 70,
       "title": "ADC 상태·결과 출력",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 730,
+      "y": 830,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 679,
-        "y": 592
+        "y": 663
       }
     },
     {
