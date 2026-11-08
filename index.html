@@ -276,6 +276,11 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 <option value="09">09장 · 자동/수동 통합</option>
 <option value="10">10장 · 안전 캡스톤</option>
 </select></label>
+<label class="chapter-selector" for="diagramKind">도면 종류
+<select id="diagramKind" aria-label="C 명령 흐름 또는 RTL 모듈별 도면 선택">
+<option value="control">C 명령 흐름</option>
+<option value="rtl">RTL 모듈별</option>
+</select></label>
 <button type="button" id="loadChapter" class="primary">선택 장 열기</button><button type="button" id="restoreDraft" style="display:none" title="이 브라우저에 임시 저장된 편집 내용을 확인 후 복원">임시 저장본 복구</button><span id="draftStatus" role="status" style="font-size:12px"></span>
 <span class="sep"></span><label class="chapter-selector" for="pagePicker">페이지
 <select id="pagePicker" aria-label="플로우차트 페이지 선택"></select></label>
@@ -2029,7 +2034,13 @@ $('loadChapter').onclick=async()=>{
  $('loadChapter').disabled=true;
  try{
   let next;
-  const pagesResponse=await fetch('./chapters/P2_'+num+'_pages.json?v=spacing40-20261108',{cache:'no-store'});
+  const kind=$('diagramKind').value;
+   const pagesUrl=kind==='rtl'
+     ? './chapters/P2_'+num+'_rtl_pages.json?v=rtl-20261108'
+     : './chapters/P2_'+num+'_pages.json?v=spacing40-20261108';
+   const pagesResponse=await fetch(pagesUrl,{cache:'no-store'});
+   if(kind==='rtl'&&!pagesResponse.ok)
+     throw Error('해당 장 RTL 도면 파일을 찾을 수 없습니다 (HTTP '+pagesResponse.status+')');
   let loaded;
   if(pagesResponse.ok)loaded=await pagesResponse.json();
   else if(num==='01')loaded=baseScene();
@@ -2043,10 +2054,10 @@ $('loadChapter').onclick=async()=>{
   }else{next=validateChapterScene(loaded);pageBook=[clonePage(next)];}
   scene=next;pageIndex=0;pageHistory.clear();refreshPagePicker();mode='structured';rawDoc=null;
   history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
-  $('modeLabel').textContent='편집 모드: 노드 · P2-'+num;
+  $('modeLabel').textContent='편집 모드: 노드 · P2-'+num+' · '+(kind==='rtl'?'RTL':'C');
   updateUI();fitCanvas();
-  $('fileStatus').textContent='P2-'+num+'장 '+('설계 도면 (코드·보드 미검증)')+' 불러오기';
-  toast(num+'장 도면을 불러왔습니다.');
+  $('fileStatus').textContent='P2-'+num+'장 '+(kind==='rtl'?'RTL 모듈 상세':'C 명령 처리')+' · 설계 도면 (실물 미검증)';
+  toast(num+'장 '+(kind==='rtl'?'RTL 모듈별':'C 명령 처리')+' 도면을 불러왔습니다.');
  }catch(err){
   toast('장별 도면 불러오기 실패: '+err.message);
   $('chapterSelect').value=prior;
