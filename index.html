@@ -398,7 +398,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
     <label><input type="checkbox" id="batchDoFonts" checked> 글자 크기(px)</label>
     <div class="batch-fields"><label>첫 줄 <input type="number" id="batchFontMain" value="23" min="10" max="80"></label><label>둘째 줄 <input type="number" id="batchFontSub" value="18" min="9" max="60"></label></div>
     <label><input type="checkbox" id="batchDoPadding" checked> 내부 여백(px)</label>
-    <div class="batch-fields"><label>좌우 여백(px)<input type="number" id="batchPad" value="12" min="12" max="80"></label><label>상하 여백(px)<input type="number" id="batchPadY" value="10.67" min="8" max="80" step="0.33"></label></div>
+    <div class="batch-fields"><label>좌우 여백(px)<input type="number" id="batchPad" value="12" min="12" max="80"></label><label>상하 여백(px)<input type="number" id="batchPadY" value="8" min="8" max="80" step="0.33"></label></div>
     <label><input type="checkbox" id="batchDoOutline" checked> 윤곽선</label>
     <div class="batch-fields"><label>색상 <input type="color" id="batchOutlineColor" value="#1f3a5f"></label><label>굵기 <input type="number" id="batchOutlineWidth" value="3.5" min="1" max="12" step=".5"></label></div>
     <label><input type="checkbox" id="batchDoFill"> 배경색 변경</label>
@@ -1521,7 +1521,7 @@ function updateStylePreview(){
  sw.style.fontSize=Math.max(14,Math.round(p.fontMain*.72))+'px';
  $('stylePresetDesc').textContent=p.name+
    ' · 글자 '+p.fontMain+'/'+p.fontSub+'px · '+(p.fill==='none'?'채움 없음':'채움 적용')+
-   ' · 상하 여백 10.67px';
+   ' · 상하 여백 8px';
  const def=scene.settings.defaultPreset||'navy';
  $('stylePresetStatus').textContent='새 박스 기본: '+(BOX_STYLE_PRESETS[def]||BOX_STYLE_PRESETS.navy).name+
    ' · 선택 박스는 「선택 박스에 적용」을 눌러 변경합니다.';
@@ -1577,7 +1577,7 @@ function updateQuickInspector(){
   safeValue('quickStrokeColor',cssColor(n.strokeColor,'#1f3a5f'));
   safeValue('quickStrokeWidth',n.strokeWidth??scene.settings.stroke);
   safeValue('quickPad',n.pad??scene.settings.pad);
-  safeValue('quickPadY',n.padY??scene.settings.padY??10.67);
+  safeValue('quickPadY',n.padY??scene.settings.padY??8);
   safeValue('quickX',n.x);safeValue('quickY',n.y);safeValue('quickW',n.w);safeValue('quickH',n.h);
   $('quickTransparent').checked=n.fill==='none';safeValue('quickFill',cssColor(n.fill,'#ffffff')); $('quickFill').disabled=n.fill==='none';
   $('quickAutoFit').checked=n.autoFit!==false;
