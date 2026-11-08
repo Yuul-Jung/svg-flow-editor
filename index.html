@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SoC 플로우차트 SVG 편집기 v4.0</title>
+<title>SoC 플로우차트 SVG 편집기 v4.6</title>
 <style>
 :root{--bg:#eef1f5;--ink:#1c2738;--muted:#5e6b80;--line:#c9d2df;--blue:#4635b1;--white:#fff}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font:14px/1.45 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif}
@@ -258,10 +258,14 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 .chapter-selector select{width:242px;max-width:38vw;min-height:42px;font-size:15px}
 #loadChapter{min-height:42px!important}
 @media(max-width:870px){.chapter-selector select{width:185px;max-width:60vw}.chapter-selector{font-size:13px}}
+
+/* v4.6 RTL/C source diagram selector. Keep compact in the mobile toolbar. */
+#diagramKind{width:150px;min-width:135px;max-width:180px;font-size:15px}
+@media(max-width:870px){#diagramKind{width:128px;min-width:115px;max-width:148px}}
 </style>
 </head>
 <body>
-<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.5</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
+<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v4.6</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
 <div class="toolbar">
 <label id="chapterSelectLabel" class="chapter-selector">제2부 도면
 <select id="chapterSelect" aria-label="제2부 장별 플로우차트 선택">
