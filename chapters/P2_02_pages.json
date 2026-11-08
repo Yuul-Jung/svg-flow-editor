@@ -10,8 +10,8 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-02 · FND 4자리 숫자 표시",
       "subtitle": "01장 LED0 유지 + 02장 FND 추가 · C 명령 흐름 / 페이지 이동 별도",
-      "width": 1567,
-      "height": 1180,
+      "width": 1280,
+      "height": 1090,
       "headings": {
         "title": {
           "x": 299,
@@ -45,8 +45,8 @@
         {
           "id": "start",
           "type": "rect",
-          "x": 434,
-          "y": 180,
+          "x": 490,
+          "y": 160,
           "w": 410,
           "h": 70,
           "title": "P2-02 통합 프로그램 시작",
@@ -67,8 +67,8 @@
         {
           "id": "input",
           "type": "rect",
-          "x": 434,
-          "y": 330,
+          "x": 490,
+          "y": 280,
           "w": 420,
           "h": 70,
           "title": "UART 문자열 명령 수신",
@@ -89,8 +89,8 @@
         {
           "id": "decision",
           "type": "diamond",
-          "x": 434,
-          "y": 505,
+          "x": 490,
+          "y": 430,
           "w": 460,
           "h": 135,
           "title": "DISP OFF 또는 4자리 숫자인가?",
@@ -111,8 +111,8 @@
         {
           "id": "other",
           "type": "rect",
-          "x": 434,
-          "y": 680,
+          "x": 490,
+          "y": 600,
           "w": 520,
           "h": 70,
           "title": "기존 LED·STATUS·오류 처리",
@@ -133,8 +133,8 @@
         {
           "id": "action",
           "type": "rect",
-          "x": 1074,
-          "y": 505,
+          "x": 1040,
+          "y": 430,
           "w": 400,
           "h": 70,
           "title": "FND 명령에 맞게 레지스터 처리",
@@ -155,8 +155,8 @@
         {
           "id": "status",
           "type": "rect",
-          "x": 434,
-          "y": 855,
+          "x": 490,
+          "y": 740,
           "w": 495,
           "h": 70,
           "title": "명령별 UART 응답 출력",
@@ -177,8 +177,8 @@
         {
           "id": "repeat",
           "type": "rect",
-          "x": 434,
-          "y": 1030,
+          "x": 490,
+          "y": 880,
           "w": 355,
           "h": 70,
           "title": "다음 명령 수신 대기",
@@ -200,8 +200,8 @@
           "id": "page_to_2",
           "type": "page",
           "targetPage": 1,
-          "x": 1374,
-          "y": 1115,
+          "x": 1040,
+          "y": 1015,
           "w": 325,
           "h": 70,
           "title": "도면 안내 · 2페이지 열기",
@@ -299,8 +299,8 @@
           "arrowSize": 16,
           "labelFont": 17,
           "via": {
-            "x": 874,
-            "y": 800
+            "x": 790,
+            "y": 675
           }
         },
         {
@@ -339,8 +339,8 @@
       "pageTitle": "DISP 명령·레지스터·RTL 분리",
       "title": "P2-02 · FND 명령 상세 처리",
       "subtitle": "C 분기·레지스터 쓰기와 RTL 시분할 스캔 구분 · 코드/보드 미검증",
-      "width": 1894,
-      "height": 1625,
+      "width": 1590,
+      "height": 1355,
       "headings": {
         "title": {
           "x": 299,
@@ -373,8 +373,8 @@
       "nodes": [
         {
           "id": "entry",
-          "x": 634,
-          "y": 205,
+          "x": 750,
+          "y": 155,
           "w": 320,
           "h": 70,
           "title": "handle_command(line)",
@@ -395,8 +395,8 @@
         },
         {
           "id": "is_off",
-          "x": 634,
-          "y": 385,
+          "x": 750,
+          "y": 285,
           "w": 485,
           "h": 135,
           "title": "DISP OFF인가?",
@@ -417,8 +417,8 @@
         },
         {
           "id": "off",
-          "x": 1384,
-          "y": 385,
+          "x": 260,
+          "y": 285,
           "w": 355,
           "h": 70,
           "title": "FND_CTRL_REG ← 0",
@@ -439,8 +439,8 @@
         },
         {
           "id": "is_digits",
-          "x": 634,
-          "y": 615,
+          "x": 750,
+          "y": 465,
           "w": 500,
           "h": 135,
           "title": "DISP dddd 형식인가?",
@@ -461,8 +461,8 @@
         },
         {
           "id": "invalid",
-          "x": 1384,
-          "y": 615,
+          "x": 1250,
+          "y": 465,
           "w": 310,
           "h": 70,
           "title": "ERROR 명령 안내 출력",
@@ -483,8 +483,8 @@
         },
         {
           "id": "bcd",
-          "x": 634,
-          "y": 820,
+          "x": 750,
+          "y": 625,
           "w": 355,
           "h": 70,
           "title": "4자리 BCD 값 구성",
@@ -505,8 +505,8 @@
         },
         {
           "id": "write",
-          "x": 634,
-          "y": 1015,
+          "x": 750,
+          "y": 755,
           "w": 485,
           "h": 70,
           "title": "FND_VALUE_REG·CTRL_REG 쓰기",
@@ -527,8 +527,8 @@
         },
         {
           "id": "report",
-          "x": 634,
-          "y": 1200,
+          "x": 750,
+          "y": 895,
           "w": 330,
           "h": 70,
           "title": "report_fnd(\"OK \")",
@@ -549,8 +549,8 @@
         },
         {
           "id": "return",
-          "x": 634,
-          "y": 1405,
+          "x": 750,
+          "y": 1035,
           "w": 390,
           "h": 70,
           "title": "handle_command() 종료",
@@ -571,8 +571,8 @@
         },
         {
           "id": "rtl",
-          "x": 1404,
-          "y": 1095,
+          "x": 1250,
+          "y": 1170,
           "w": 515,
           "h": 70,
           "title": "RTL은 독립적으로 4자리 스캔",
@@ -593,8 +593,8 @@
         },
         {
           "id": "nav",
-          "x": 1404,
-          "y": 1560,
+          "x": 1250,
+          "y": 1280,
           "w": 390,
           "h": 70,
           "title": "도면 안내 · 1페이지 열기",
@@ -633,8 +633,8 @@
           "id": "f2",
           "from": "is_off",
           "to": "off",
-          "fp": "right",
-          "tp": "left",
+          "fp": "left",
+          "tp": "right",
           "label": "예",
           "route": "auto",
           "strokeColor": "#5A1E1E",
@@ -724,15 +724,14 @@
           "id": "f9",
           "from": "off",
           "to": "report",
-          "fp": "right",
-          "tp": "right",
+          "fp": "left",
+          "tp": "left",
           "label": "",
-          "route": "loopRight",
+          "route": "loopLeft",
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
-          "labelFont": 17,
-          "laneX": 1784
+          "labelFont": 17
         },
         {
           "id": "f10",
@@ -745,8 +744,7 @@
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
-          "labelFont": 17,
-          "laneX": 1864
+          "labelFont": 17
         }
       ]
     }
