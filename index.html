@@ -476,7 +476,7 @@ function baseScene(){
   ];
   const edge=(id,from,to,fp,tp,label='',route='auto')=>({id,from,to,fp,tp,label,route});
   const edges=[edge('e1','start','declare','bottom','top'),edge('e2','declare','intro','bottom','top'),edge('e3','intro','status','bottom','top'),edge('e4','status','receive','bottom','top'),edge('e5','receive','d1','bottom','top'),edge('e6','d1','cmd','right','left','예'),edge('e7','d1','d2','bottom','top','아니오'),edge('e8','d2','err1','right','left','예'),edge('e9','d2','d3','bottom','top','아니오'),edge('e10','d3','err2','right','left','예'),edge('e11','d3','repeat','bottom','top','아니오'),edge('e12','cmd','repeat','right','right','','loopRight'),edge('e13','err1','repeat','right','right','','loopRight'),edge('e14','err2','repeat','right','right','','loopRight'),edge('e15','repeat','receive','left','left','반복','loopLeft')];
-  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:16,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
+  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:44,pad:6,padY:4,defaultPreset:'navy'},nodes,edges};
 }
 let activeHeading=null,headingDrag=null;
 let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
@@ -494,7 +494,12 @@ function redo(){if(!future.length||mode!=='structured')return;history.push(clone
 function sEl(tag,attrs={},textContent){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>{if(v!==undefined&&v!==null)el.setAttribute(k,String(v))});if(tag==='text'&&!('font-family' in attrs))el.setAttribute('font-family',"Noto Sans KR, Noto Sans CJK KR, Malgun Gothic, sans-serif");if(textContent!==undefined)el.textContent=textContent;return el}
 function getNode(id){return scene.nodes.find(n=>n.id===id)}
 function port(n,key){return {top:[n.x,n.y-n.h/2],bottom:[n.x,n.y+n.h/2],left:[n.x-n.w/2,n.y],right:[n.x+n.w/2,n.y]}[key]||[n.x,n.y]}
-function edgePath(e){const a=getNode(e.from),b=getNode(e.to);if(!a||!b)return null;const [sx,sy]=port(a,e.fp),[tx,ty]=port(b,e.tp);const all=scene.nodes;let pts=[[sx,sy]];if(Array.isArray(e.bendPoints)&&e.bendPoints.length){const bends=e.bendPoints.filter(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite));if(bends.length){const out=[[sx,sy]];for(const p of bends){const last=out[out.length-1];if(last[0]!==p[0]&&last[1]!==p[1])out.push([last[0],p[1]]);out.push([p[0],p[1]]);}const last=out[out.length-1];if(last[0]!==tx&&last[1]!==ty)out.push([tx,last[1]]);out.push([tx,ty]);return out.filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}}if(e.via&&Number.isFinite(+e.via.x)&&Number.isFinite(+e.via.y)){const vx=+e.via.x,vy=+e.via.y;return [[sx,sy],[sx,vy],[vx,vy],[vx,ty],[tx,ty]].filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}
+function edgePath(e){const a=getNode(e.from),b=getNode(e.to);if(!a||!b)return null;const [sx,sy]=port(a,e.fp),[tx,ty]=port(b,e.tp);const all=scene.nodes;let pts=[[sx,sy]];if(Array.isArray(e.bendPoints)&&e.bendPoints.length){const bends=e.bendPoints.filter(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite));if(bends.length){const out=[[sx,sy]];for(const p of bends){const last=out[out.length-1];if(last[0]!==p[0]&&last[1]!==p[1])out.push([last[0],p[1]]);out.push([p[0],p[1]]);}const last=out[out.length-1];if(last[0]!==tx&&last[1]!==ty)out.push([tx,last[1]]);out.push([tx,ty]);const clean=out.filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);
+ const compact=clean.filter((p,i,a)=>i===0||i===a.length-1||!((a[i-1][0]===p[0]&&p[0]===a[i+1][0])||(a[i-1][1]===p[1]&&p[1]===a[i+1][1])));
+ if(compact.length<=4)return compact;
+ // At most two direction changes: preserve endpoints and port orientation.
+ if(['left','right'].includes(e.fp)){const mid=(sx+tx)/2;return [[sx,sy],[mid,sy],[mid,ty],[tx,ty]].filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}
+ const mid=(sy+ty)/2;return [[sx,sy],[sx,mid],[tx,mid],[tx,ty]].filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}}if(e.via&&Number.isFinite(+e.via.x)&&Number.isFinite(+e.via.y)){const vx=+e.via.x,vy=+e.via.y;return (['left','right'].includes(e.fp)?[[sx,sy],[vx,sy],[vx,ty],[tx,ty]]:[[sx,sy],[sx,vy],[tx,vy],[tx,ty]]).filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}
  if(e.route==='loopLeft'){const minx=Math.min(...all.map(n=>n.x-n.w/2));const x=Math.max(25,minx-60);pts.push([x,sy],[x,ty],[tx,ty]);}
  else if(e.route==='loopRight'){const maxx=Math.max(...all.map(n=>n.x+n.w/2));const x=Number.isFinite(e.laneX)?Math.min(scene.width-35,Math.max(maxx+35,e.laneX)):Math.min(scene.width-35,maxx+35);pts.push([x,sy],[x,ty],[tx,ty]);}
  else if(e.route==='direct'||(sx===tx||sy===ty)){pts.push([tx,ty]);}
@@ -800,7 +805,7 @@ function compactHorizontalColumns(){
  const left=scene.nodes.filter(n=>n.x===xs[0]),right=scene.nodes.filter(n=>n.x===xs[1]);
  const rightEdge=Math.max(...left.map(n=>n.x+n.w/2));
  const leftEdge=Math.min(...right.map(n=>n.x-n.w/2));
- const delta=Math.round(rightEdge+16-leftEdge);
+ const delta=Math.round(rightEdge+56-leftEdge);
  if(!delta)return false;
  right.forEach(n=>n.x+=delta);
  scene.edges.forEach(e=>{
@@ -822,8 +827,8 @@ $('compactLayout').onclick=()=>{
    last.nodes.push(n);last.height=Math.max(last.height,n.h);
   }else rows.push({anchor:n.y,height:n.h,nodes:[n]});
  }
- if(rows.length<2){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 16px로 정리했습니다.');}else toast('정리할 세로 행이 없습니다.');return;}
- const gap=16;
+ if(rows.length<2){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 56px로 정리했습니다.');}else toast('정리할 세로 행이 없습니다.');return;}
+ const gap=44;
  const oldY=new Map(scene.nodes.map(n=>[n.id,n.y]));
  let bottom=rows[0].anchor-rows[0].height/2;
  const targets=[];
@@ -833,7 +838,7 @@ $('compactLayout').onclick=()=>{
   bottom=y+row.height/2;
  }
  const changed=targets.some(t=>Math.abs(t.now-t.old)>1);
- if(!changed){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 16px로 정리했습니다.');}else toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
+ if(!changed){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 56px로 정리했습니다.');}else toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
  checkpoint();
  for(let i=0;i<rows.length;i++){
   const delta=targets[i].now-targets[i].old;
@@ -858,7 +863,7 @@ $('compactLayout').onclick=()=>{
  scene.settings.gap=gap;
  const maxBottom=Math.max(...scene.nodes.map(n=>n.y+n.h/2));
  scene.height=Math.max(400,Math.ceil(maxBottom+70));
- updateUI();toast('가로·세로 도형 외곽 간격을 16px 기준으로 정리했습니다.');
+ updateUI();toast('가로 56px·세로 44px 기준으로 정리했습니다.');
 };
 $('autoLayout').onclick=()=>{if(mode!=='structured')return;checkpoint();let main=scene.nodes.filter(n=>n.x<scene.width*.58).sort((a,b)=>a.y-b.y),side=scene.nodes.filter(n=>n.x>=scene.width*.58).sort((a,b)=>a.y-b.y);let maxW=Math.max(...main.map(n=>n.w),500);let mx=scene.width*.43,rx=scene.width*.77;let y=158;for(const n of main){n.x=mx;n.y=y;y+=n.h+scene.settings.gap;}for(const n of side){const src=scene.edges.find(e=>e.to===n.id&&e.fp==='right');const an=src&&getNode(src.from);n.x=rx;if(an)n.y=an.y;}scene.height=Math.max(scene.height,y+80);updateUI();toast('수직 배치를 적용했습니다. 연결선도 자동 재계산됩니다.')};
 $('alignX').onclick=()=>{if(mode!=='structured'||selected.size<2){toast('Shift+클릭으로 2개 이상 선택하세요.');return;}checkpoint();let list=[...selected].map(getNode);let x=list.reduce((a,n)=>a+n.x,0)/list.length;list.forEach(n=>n.x=Math.round(x));updateUI()};
