@@ -1791,7 +1791,7 @@ function validateChapterScene(data){
     !data.settings||!Number.isFinite(data.width)||!Number.isFinite(data.height))throw Error('도면 구조가 올바르지 않습니다.');
  const ids=new Set(data.nodes.map(n=>n.id));
  if(ids.size!==data.nodes.length)throw Error('중복된 도형 ID가 있습니다.');
- for(const e of data.edges)if(!ids.has(e.from)||!ids.has(e.to))throw Error('연결선 대상 도형이 없습니다.');
+ for(const e of data.edges){if(!ids.has(e.from)||!ids.has(e.to))throw Error('연결선 대상 도형이 없습니다.');if(e.bendPoints!==undefined&&(!Array.isArray(e.bendPoints)||e.bendPoints.length>100||!e.bendPoints.every(p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite))))throw Error('연결선 꺾임점 좌표가 올바르지 않습니다.');}
  return data;
 }
 $('loadChapter').onclick=async()=>{
