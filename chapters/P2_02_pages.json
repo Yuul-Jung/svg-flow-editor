@@ -10,7 +10,7 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-02 · FND 4자리 숫자 표시",
       "subtitle": "01장 LED0 유지 + 02장 FND 추가 · C 명령 흐름 / 페이지 이동 별도",
-      "width": 1280,
+      "width": 1236,
       "height": 881,
       "headings": {
         "title": {
@@ -133,7 +133,7 @@
         {
           "id": "action",
           "type": "rect",
-          "x": 1040,
+          "x": 966,
           "y": 400,
           "w": 400,
           "h": 70,
@@ -200,7 +200,7 @@
           "id": "page_to_2",
           "type": "page",
           "targetPage": 1,
-          "x": 1040,
+          "x": 966,
           "y": 776,
           "w": 325,
           "h": 70,
@@ -299,7 +299,7 @@
           "arrowSize": 16,
           "labelFont": 17,
           "via": {
-            "x": 790,
+            "x": 716,
             "y": 564
           }
         },
