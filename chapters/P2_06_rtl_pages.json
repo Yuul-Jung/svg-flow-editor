@@ -119,7 +119,7 @@
           "w": 1120,
           "h": 84,
           "title": "출력·기능·안전",
-          "sub": "LED2 sonar_alert / motor unsafe 경계",
+          "sub": "LED2 sonic_alert / 모터 안전 신호",
           "fill": "none",
           "autoFit": true,
           "pad": 6,
