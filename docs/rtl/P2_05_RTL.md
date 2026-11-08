@@ -31,7 +31,7 @@
   - **Basys3 보드 외부 포트** — clk·btnC·UART·SW·센서·출력 포트
   - **내부 wire 선언** — gpio_led / p2_led0 및 장별 연결선
   - **soc11_integration_wrapper** — Vivado BD 생성 포트와 실제 이름 대조
-  - **LED 출력 결선** — LED0 IP / LED1 auto_light / LED2 Sonic / GPIO3~15
+  - **LED 출력 결선** — LED0 IP / LED1 auto_light / GPIO2~15
   - **보드 출력·안전** — Top 내부 FSM/계산 로직 없음
 - 핵심 주의: Wrapper 미검증 포트는 실증 전 확인 필요
 
@@ -55,7 +55,7 @@
 - 동작 경로(회로 데이터/제어 관계; CPU의 순차 실행은 아님):
   - **s00_axi_* 입력** — AW/W/B/AR/R · aclk/aresetn
   - **하위 S00_AXI 모듈** — p2_04_axi_pwm_v1_0_S00_AXI 인스턴스 연결
-  - **장치 데이터 경로** — Core 출력·IRQ·상태를 외부 포트로 전달
+  - **장치 데이터 경로** — Core 출력·상태·해당 시 IRQ 포트 연결
   - **연산 로직 경계** — 레지스터 디코드는 S00_AXI/Core에 위치
 - 핵심 주의: 상위 IP Wrapper 자체의 추가 FSM은 없음
 
@@ -79,7 +79,7 @@
 - 동작 경로(회로 데이터/제어 관계; CPU의 순차 실행은 아님):
   - **s00_axi_* 입력** — AW/W/B/AR/R · aclk/aresetn
   - **하위 S00_AXI 모듈** — p2_05_axi_cds_v1_0_S00_AXI 인스턴스 연결
-  - **장치 데이터 경로** — Core 출력·IRQ·상태를 외부 포트로 전달
+  - **장치 데이터 경로** — Core 출력·상태·해당 시 IRQ 포트 연결
   - **연산 로직 경계** — 레지스터 디코드는 S00_AXI/Core에 위치
 - 핵심 주의: 상위 IP Wrapper 자체의 추가 FSM은 없음
 
