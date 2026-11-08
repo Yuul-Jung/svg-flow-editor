@@ -1,0 +1,1952 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SoC 플로우차트 SVG 편집기 v4.0</title>
+<style>
+:root{--bg:#eef1f5;--ink:#1c2738;--muted:#5e6b80;--line:#c9d2df;--blue:#4635b1;--white:#fff}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--bg);font:14px/1.45 system-ui,-apple-system,'Noto Sans KR','Malgun Gothic',sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 18px;background:#19273a;color:#fff;min-height:55px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:750}header .sub{font-size:12px;color:#c1d0e2}
+.toolbar{background:#fff;display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:8px 12px;position:relative;z-index:2}
+button,.filebtn{font:inherit;border:1px solid #aab6c6;border-radius:5px;color:#25334a;padding:7px 10px;background:#fff;cursor:pointer;white-space:nowrap}
+button:hover,.filebtn:hover{border-color:#4031a3;background:#f1edff}button.primary{background:#4635b1;color:white;border-color:#4635b1}button.primary:hover{background:#342680}
+button:disabled{opacity:.4;cursor:not-allowed}.sep{height:28px;border-left:1px solid #d5dbe3;margin:0 4px}
+input,select,textarea{font:inherit;color:#20314d;border:1px solid #b8c3d1;border-radius:4px;background:white;padding:7px 8px;min-width:0;width:100%}
+input[type=number]{font-variant-numeric:tabular-nums}input[type=color]{height:35px;padding:3px}
+.filebtn input{display:none}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 440px;height:calc(100dvh - 109px);min-height:490px}
+.stage{overflow:hidden;position:relative;background:#d9dfe8}
+.stage:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(#aeb9cb 0.7px, transparent 0.7px);background-size:16px 16px}
+#viewport{position:absolute;inset:0;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:18px;touch-action:pan-x pan-y}
+#work{position:relative;flex:none;transform-origin:top center;box-shadow:0 4px 19px #1c253522;background:white}
+#canvas{display:block;max-width:none;background:#fff;user-select:none;touch-action:none}
+.node{cursor:move}.node.selected .node-shape{filter:drop-shadow(0 0 4px #6c50ff)}.node.selected .node-shape{stroke:#6547e0!important;stroke-width:5!important}
+.edge{cursor:pointer}.edge.selected path{stroke:#e1583e!important;stroke-width:5!important}.edge-label{pointer-events:none}
+#canvas text{font-family:'Noto Sans KR','Noto Sans CJK KR','Malgun Gothic',system-ui,sans-serif}
+aside{background:#fff;border-left:1px solid var(--line);overflow:auto;padding:12px 15px 30px}
+aside h2{font-size:14px;padding:0 0 10px;margin:3px 0 11px;border-bottom:1px solid #d7dfeb}
+.section{border-top:1px solid #e5e9f0;margin-top:14px;padding-top:12px}.section-title{font-size:12px;font-weight:800;color:#606e81;margin-bottom:10px}
+.field{margin:8px 0;display:grid;gap:4px}.field label{font-size:12px;color:#536174;font-weight:650}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:8px}.threecol{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.note{font-size:12px;color:var(--muted);margin:8px 0}.status{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 12px;background:#fff;border-top:1px solid var(--line);font-size:12px;color:#56647a}
+#toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);padding:10px 17px;border-radius:6px;background:#1e2f46;color:white;z-index:15;box-shadow:0 2px 16px #0004;display:none}
+#rawEditor{display:none} .hint{font-size:11px;color:#66758a}.slideline{display:grid;grid-template-columns:1fr 42px;align-items:center;gap:8px}
+.badge{font-size:11px;color:#4b3aa2;font-weight:700;background:#eeeaff;border-radius:4px;padding:2px 5px}
+@media(max-width:870px){header .sub{display:none}.layout{grid-template-columns:minmax(0,1fr);height:auto}.stage{height:65dvh;min-height:450px}aside{border-left:none;border-top:1px solid var(--line);max-height:none}.toolbar{padding:7px 8px}.toolbar button,.toolbar .filebtn{padding:7px 8px}.sep{display:none}}
+
+/* v1.1 — touch-friendly direct controls */
+.knob{display:grid;grid-template-columns:36px minmax(60px,1fr) 36px 70px;gap:6px;align-items:center}
+.knob button{min-width:36px;height:43px;padding:0;font-size:20px;font-weight:700;border-color:#8c98aa}
+.knob input[type=range]{width:100%;padding:0;border:0;height:42px;accent-color:#4635b1;cursor:pointer;touch-action:pan-y}
+.knob input[type=number]{width:70px;height:43px;text-align:center;padding:4px}
+.knob:focus-within{outline:2px solid #a79bf0;outline-offset:3px;border-radius:5px}
+#mobileTools{position:absolute;z-index:4;right:12px;bottom:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fffffff5;padding:7px;border:1px solid #9eabc0;border-radius:9px;box-shadow:0 3px 14px #19273a2a}
+#mobileTools button{font-size:15px;font-weight:650;min-height:43px;min-width:43px}
+#mobileTools .primary{color:#fff}
+#mobileTools .pct{font-variant-numeric:tabular-nums;color:#34435a;min-width:49px;text-align:center;font-weight:700}
+#viewport{touch-action:none;overscroll-behavior:contain}
+#canvas{touch-action:none}
+@media(max-width:870px){
+ .toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;white-space:nowrap;position:sticky;top:0;z-index:7}
+ .toolbar button,.toolbar .filebtn{min-height:44px}
+ .layout{display:flex;flex-direction:column}
+ .stage{height:65dvh;min-height:380px;flex:none}
+ aside{padding:18px 14px 36px}
+ aside input,aside textarea,aside select{font-size:16px}
+ .knob{grid-template-columns:42px minmax(60px,1fr) 42px 70px}
+ .knob button{height:46px}
+ #mobileTools{bottom:8px;right:8px;left:8px;justify-content:center}
+ #mobileTools button{flex:1}
+}
+
+
+/* v1.2 — Visio-style editing handles */
+.vizio-handle{fill:#fff;stroke:#5042b4;stroke-width:3;cursor:nwse-resize;pointer-events:all;touch-action:none}
+.vizio-handle[data-dir="n"],.vizio-handle[data-dir="s"]{cursor:ns-resize}
+.vizio-handle[data-dir="w"],.vizio-handle[data-dir="e"]{cursor:ew-resize}
+.vizio-handle[data-dir="ne"],.vizio-handle[data-dir="sw"]{cursor:nesw-resize}
+.vizio-port{fill:#fff;stroke:#147b8d;stroke-width:3;cursor:crosshair;pointer-events:all;touch-action:none}
+.vizio-bend{fill:#fff5d5;stroke:#b57718;stroke-width:3;cursor:move;pointer-events:all;touch-action:none}
+.vizio-end{fill:#e8dfff;stroke:#6547e0;stroke-width:3;cursor:grab;pointer-events:all;touch-action:none}
+.vizio-selected-outline{fill:none;stroke:#6547e0;stroke-dasharray:7 6;stroke-width:1.7;pointer-events:none}
+#vizioMode{display:flex;align-items:center;gap:7px;white-space:nowrap}
+#vizioMode button.is-on{background:#e6dfff;border-color:#5442b4;font-weight:750}
+#vizioHelp{font-size:12px;color:#40536f;margin:5px 0 9px;padding:8px 10px;background:#eaf2fc;border-left:3px solid #5143ad}
+@media(max-width:870px){.vizio-handle,.vizio-port,.vizio-end,.vizio-bend{stroke-width:4}#vizioMode button{min-height:44px}}
+.auto-fit-field{display:flex;flex-direction:column;gap:10px}.auto-fit-toggle{display:flex;align-items:center;gap:9px;font-weight:700}.auto-fit-toggle input{width:22px;height:22px;accent-color:#4635b1}.auto-fit-field button{min-height:44px;border-color:#6554ac;font-weight:700}
+
+.heading-hit{fill:transparent;stroke:none;pointer-events:all;cursor:move;touch-action:none}
+.heading-text{pointer-events:none;user-select:none}
+.heading-outline{fill:none;stroke:#5c50d9;stroke-width:2;stroke-dasharray:7 5;pointer-events:none}
+.heading-handle{fill:#fff;stroke:#5443d3;stroke-width:3;cursor:nwse-resize;pointer-events:all;touch-action:none}
+.heading-switch{display:flex;align-items:center;gap:10px;font-weight:650;margin:10px 0}
+.heading-switch input{width:22px;height:22px;accent-color:#4635b1}
+.heading-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.heading-buttons button{min-height:44px;font-weight:700}
+#headingSize{width:100%;height:40px;accent-color:#4635b1}
+
+/* v1.8: wider properties inspector, independent scroll, accessible controls */
+@media(min-width:871px){.layout{grid-template-columns:minmax(0,1fr) 440px}}
+@media(min-width:871px){aside{padding:18px 22px 40px}.twocol{gap:14px}.knob{grid-template-columns:42px minmax(80px,1fr) 42px 76px;gap:8px}.knob input[type=number]{width:76px}}
+
+/* v1.9: no wasted strip between drawing and inspector.
+   margin-left:auto keeps the canvas right-aligned without hiding left overflow. */
+@media (min-width:871px){
+  #viewport{justify-content:flex-start;padding:14px 0 14px 14px;scrollbar-gutter:stable}
+  #work{margin-left:auto;margin-right:0}
+  .stage{min-width:0}
+  aside{font-size:15.333px}
+  aside h2{font-size:15.333px}
+  aside .field label,aside .section-title{font-size:13.333px}
+  aside .note,aside .hint,aside #vizioHelp,aside #vizioHelp p{font-size:13.333px}
+  aside input,aside select,aside textarea,aside button{font-size:15.333px}
+  aside .knob button{font-size:21.333px}
+}
+
+/* v2.0: expand the inspector and stop right-justifying an oversized SVG canvas. */
+@media(min-width:871px){
+  .layout{grid-template-columns:minmax(0,1fr) 600px !important;column-gap:0 !important}
+  .stage{margin:0;min-width:0}
+  #viewport{justify-content:flex-start !important;align-items:flex-start;
+    padding:10px 0 10px 10px !important;scrollbar-gutter:auto !important}
+  #work{margin:0 !important;flex:none}
+  aside{margin:0;border-left:1px solid var(--line);padding:18px 24px 40px}
+  aside .twocol{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+  aside .knob{grid-template-columns:44px minmax(90px,1fr) 44px 80px;gap:8px}
+  aside .knob input[type=number]{width:80px}
+}
+@media(min-width:871px) and (max-width:1190px){
+  .layout{grid-template-columns:minmax(0,1fr) min(48vw,600px) !important}
+}
+
+/* v2.1: resizable split view with visible keyboard/touch handle */
+@media(min-width:871px){
+  .layout{grid-template-columns:minmax(0,1fr) 12px minmax(0,var(--inspector-width,600px)) !important;column-gap:0 !important}
+  #panelSplitter{position:relative;z-index:6;background:#c8d1dd;border-left:1px solid #acb8c9;border-right:1px solid #acb8c9;
+    cursor:col-resize;touch-action:none;user-select:none}
+  #panelSplitter::after{content:"⋮";display:flex;align-items:center;justify-content:center;
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:26px;height:76px;border:1px solid #8291a8;border-radius:10px;background:#fff;
+    color:#425371;font-weight:800;font-size:25px;box-shadow:0 1px 5px #15233c33;pointer-events:none}
+  #panelSplitter:hover,#panelSplitter:focus-visible{background:#9180d4;outline:2px solid #6a4db9;outline-offset:-2px}
+  body.resizing-panel,body.resizing-panel *{cursor:col-resize !important;user-select:none !important}
+}
+@media(max-width:870px){#panelSplitter{display:none !important}}
+
+/* v2.2 bulk editor + visible rubber-band selection */
+.batch-panel{border:1px solid #9cafd0;border-radius:10px;background:#f6f8fd;padding:16px;margin:10px 0 18px}
+.batch-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.batch-header strong{font-size:17px;color:#1d3456}.batch-header button{font-size:13px;padding:6px 10px}
+.batch-hint{font-size:13px;color:#53677f;line-height:1.5;margin:8px 0 14px}
+.batch-grid{display:grid;grid-template-columns:1fr;gap:9px}
+.batch-grid>label{font-weight:700;display:flex;align-items:center;gap:9px}
+.batch-grid input[type=checkbox]{width:19px;height:19px;accent-color:#4f3fbc}
+.batch-grid input[type=number]{width:100%;min-width:0;min-height:42px;padding:8px;border:1px solid #acbbcf;border-radius:5px}
+.batch-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}
+.batch-fields>label{display:grid;gap:4px;font-size:13px}
+.batch-fields input[type=color]{width:100%;height:42px;border:1px solid #a4b1c5;background:#fff}
+.batch-submit{width:100%;min-height:45px;margin-top:16px;font-weight:750}
+#batchResetStyle{width:100%;margin-top:8px}
+#marqueeBtn.active{background:#e0dbff;border-color:#4a36a6;font-weight:750}
+#rubberBand{fill:rgba(78,62,180,.12);stroke:#543ac5;stroke-width:2.5;stroke-dasharray:9 5;pointer-events:none}
+@media(min-width:871px){#viewport{justify-content:center !important;padding:10px !important}
+ #work{margin-left:auto !important;margin-right:auto !important}}
+
+/* v2.4 Visio/Figma inspired accessible selection */
+@media(min-width:871px){
+ #viewport{cursor:crosshair}
+ .node{cursor:move}
+ .node.selected .node-shape{stroke:#4058bb!important;stroke-width:4!important;filter:none!important}
+ .edge.selected path:not(.edge-hit){stroke:#bf502d!important}
+ body.space-panning #viewport,body.space-panning #canvas{cursor:grab!important}
+ body.space-panning #viewport:active{cursor:grabbing!important}
+}
+#marqueeBtn{white-space:nowrap}
+#batchPanel{scroll-margin-top:10px}
+
+#gridToggle.active{background:#e5effc;border-color:#325e99;font-weight:700}
+.source-dialog{width:min(920px,95vw);max-height:90vh;border:1px solid #9aabc3;border-radius:12px;box-shadow:0 12px 48px #11182c55;padding:20px;background:#fff;color:#1d2b3e}
+.source-dialog::backdrop{background:#17253990}
+.source-header{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:19px}
+.source-dialog p{font-size:13px;color:#53657c}
+#svgSourcePreview{width:100%;min-height:42vh;max-height:61vh;font:13px/1.5 ui-monospace,Consolas,monospace;white-space:pre;tab-size:2}
+.source-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+
+/* v2.6 professional, context-sensitive property inspector */
+aside{font-family:system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif}
+.inspector-top{position:sticky;top:-18px;z-index:4;background:#fff;border-bottom:1px solid #d4deec;padding:6px 0 12px;margin:-6px 0 14px}
+.inspector-top h2{font-size:18px!important;line-height:1.45;margin:0 0 2px!important;padding:0!important;border:0!important}
+.inspector-caption{font-size:13px;color:#667892}
+.quick-inspector{border:1px solid #bac8dd;border-radius:10px;background:#f8faff;padding:16px;margin:8px 0 16px}
+.quick-inspector-title{font-size:16px;font-weight:800;color:#263c61;margin-bottom:12px}
+.property-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+.property-grid label{display:flex;flex-direction:column;min-width:0;gap:7px;font-size:14px;font-weight:700;color:#2c3d57}
+.property-grid input,.property-grid select{width:100%;max-width:100%;min-width:0;font:inherit;font-size:16px!important;height:44px;padding:7px 10px;border:1px solid #a6b6cf;border-radius:6px;background:#fff;color:#172439}
+.property-grid input[type="color"]{padding:4px 6px;cursor:pointer}
+.property-grid input:focus-visible,.property-grid select:focus-visible{outline:2px solid #7360d7;outline-offset:1px}
+.property-grid select{appearance:auto;cursor:pointer;white-space:normal}
+.property-grid .wide-property{grid-column:1/-1}
+.property-grid label.check-property{flex-direction:row;gap:8px;align-items:center;font-size:13px}
+.property-grid input[type=checkbox]{flex:none;height:20px;width:20px}
+.quick-action{display:flex;gap:10px;margin-top:16px}
+.quick-action button{flex:1;min-height:42px;font-size:14px!important}
+.inspector-tip{font-size:14px;color:#536780;line-height:1.55}
+#inspectorAdvanced{border-top:1px solid #d9e0ea;margin-top:8px;padding:8px 0}
+#inspectorAdvanced>summary{position:sticky;top:47px;z-index:3;list-style:revert;cursor:pointer;font-size:15px;font-weight:800;color:#29456c;background:#fff;padding:10px 8px}
+#inspectorAdvanced .advanced-body{padding-top:12px}
+#inspectorAdvanced .field{gap:7px;margin:12px 0}
+#inspectorAdvanced .field label{font-size:14px}
+#inspectorAdvanced .field input,#inspectorAdvanced .field select,#inspectorAdvanced .field textarea{min-width:0;width:100%;max-width:100%;height:auto;min-height:42px;font-size:16px;padding:8px 10px}
+#inspectorAdvanced .field select{min-height:46px}
+#inspectorAdvanced .field textarea{min-height:62px;resize:vertical}
+#inspectorAdvanced .twocol{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#inspectorAdvanced .knob{display:grid;grid-template-columns:38px minmax(52px,1fr) 38px 72px;gap:6px}
+#inspectorAdvanced .knob button{font-size:18px!important;min-width:38px}
+#inspectorAdvanced .knob input[type=range]{min-height:36px;padding:0}
+#inspectorAdvanced .knob input[type=number]{width:72px!important;padding:6px;font-size:15px}
+.batch-panel .batch-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.batch-panel select{width:100%;min-width:0;min-height:44px;font-size:15px}
+.batch-panel label{font-size:14px}
+@media(max-width:870px){.inspector-top{top:-18px}.property-grid{gap:12px}.quick-inspector{padding:14px}#inspectorAdvanced>summary{top:45px}}
+
+.inspector-fold{margin:0 0 10px;background:#fff;border:1px solid #d5deeb;border-radius:8px;overflow:hidden}
+.inspector-fold>summary{cursor:pointer;font-size:15px;font-weight:750;color:#284264;padding:12px 14px;background:#f0f4fa}
+.inspector-fold[open]>summary{border-bottom:1px solid #dce3ec}
+.inspector-fold>.property-grid{padding:14px}
+
+/* v2.7 preset picker is visible for both single and multi-node styling */
+.preset-panel{background:#fff;border:1px solid #d5deeb;border-radius:9px;padding:13px}
+.preset-panel>label{display:block;font-size:14px;font-weight:750;color:#233b5e;margin-bottom:8px}
+.preset-panel select{width:100%;min-width:0;min-height:46px;font-size:16px;padding:7px 12px;background:#fff;border:1px solid #aab8cd;border-radius:6px;cursor:pointer}
+.preset-preview{display:flex;align-items:center;gap:12px;margin:12px 0;padding:10px;background:#f8f9fc;border-radius:6px;min-height:72px}
+.preset-swatch{min-width:83px;min-height:50px;padding:9px 14px;border:3px solid #1f3a5f;border-radius:2px;display:flex;justify-content:center;align-items:center;font-weight:750}
+#stylePresetDesc{font-size:13px;color:#4b617b;line-height:1.55}
+.preset-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.preset-actions button{font-size:14px!important;min-height:43px;white-space:normal;line-height:1.35;padding:7px}
+.preset-note{font-size:12px;color:#5b6d86;line-height:1.5;margin:10px 0 0}
+@media(max-width:550px){.preset-actions{grid-template-columns:1fr}}
+
+/* v2.8 first-use UX: progressive disclosure and usable targets */
+.welcome-guide{border:1px solid #b7c8dd;background:#f1f6fc;border-radius:10px;padding:16px;margin:10px 0 16px;line-height:1.6}
+.welcome-title{font-size:17px;font-weight:800;color:#203a5c;display:flex;align-items:center;gap:9px}
+.welcome-badge{background:#e1eafb;border-radius:9px;padding:1px 9px;color:#3b5295;font-size:12px}
+.welcome-guide ol{margin:10px 0;padding-left:24px;font-size:14px}
+.welcome-guide li{padding:3px 0}
+.welcome-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:12px 0 4px}
+.welcome-actions button{min-height:44px;white-space:normal;font-size:14px}
+.welcome-hint{color:#536b86;font-size:12.5px;line-height:1.55;margin:9px 0 0}
+#inspectorAdvanced[hidden]{display:none}
+#toolbarMore{border:1px solid #9caec9;font-weight:750;background:#eef2fa}
+#toolbarMore[aria-expanded="true"]{background:#e7e1ff;border-color:#5c44b5}
+body:not(.show-extra-tools) .advanced-tool{display:none!important}
+.guide-support{border-top:1px solid #d6e0ec;padding:6px 0;margin:14px 0}
+.guide-support summary{font-size:14px;font-weight:750;color:#2f4a72;cursor:pointer;padding:8px}
+.guide-support .guide-details{padding:9px;background:#f7f9fe}
+.guide-support select{min-height:44px;font-size:15px;width:100%}
+#presetDetails{background:#fff;border:1px solid #cfd9e7;border-radius:9px;margin:0 0 14px}
+#presetDetails>summary{padding:12px 14px;background:#f3f6fb;cursor:pointer;font-size:15px;font-weight:750;color:#284465}
+#presetDetails[open]>summary{border-bottom:1px solid #dfe5ef}
+#presetDetails>.preset-panel{border:0;border-radius:0}
+#selectionFocusHint{font-size:13px;color:#506b8b;margin:0 0 10px}
+.quick-inspector{padding:12px}
+.quick-inspector-title{margin-bottom:10px}
+@media(min-width:871px){.toolbar button,.toolbar .filebtn{min-height:39px}}
+@media(max-width:870px){.welcome-guide{padding:12px}.welcome-actions{grid-template-columns:1fr}.welcome-actions button{width:100%}}
+
+.chapter-selector{display:flex;align-items:center;gap:9px;white-space:nowrap;font-size:14px;font-weight:700;color:#233b5c;padding:0 6px}
+.chapter-selector select{width:242px;max-width:38vw;min-height:42px;font-size:15px}
+#loadChapter{min-height:42px!important}
+@media(max-width:870px){.chapter-selector select{width:185px;max-width:60vw}.chapter-selector{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div><h1>SoC SVG 플로우차트 편집기 <span class="badge">v3.0</span></h1><div class="sub">01장 예제 내장 · 코드명 유지 · 마름모 꼭짓점 연결 · SVG 원본 저장</div></div><div id="modeLabel">편집 모드: 노드</div></header>
+<div class="toolbar">
+<label id="chapterSelectLabel" class="chapter-selector">제2부 도면
+<select id="chapterSelect" aria-label="제2부 장별 플로우차트 선택">
+<option value="01">01장 · UART 명령 분류</option>
+<option value="02">02장 · FND 4자리 표시</option>
+<option value="03">03장 · 버튼/인터럽트</option>
+<option value="04">04장 · PWM 밝기</option>
+<option value="05">05장 · CdS 조도</option>
+<option value="06">06장 · 초음파/경보</option>
+<option value="07">07장 · DC 모터</option>
+<option value="08">08장 · XADC</option>
+<option value="09">09장 · 자동/수동 통합</option>
+<option value="10">10장 · 안전 캡스톤</option>
+</select></label>
+<button type="button" id="loadChapter" class="primary">선택 장 열기</button>
+<span class="sep"></span><label class="chapter-selector" for="pagePicker">페이지
+<select id="pagePicker" aria-label="플로우차트 페이지 선택"></select></label>
+<button type="button" id="previousPage">◀ 이전</button><button type="button" id="nextPage">다음 ▶</button>
+<button type="button" id="addPage">+ 새 페이지</button>
+<button type="button" id="duplicatePage">페이지 복제</button><button type="button" id="deletePage">페이지 삭제</button>
+<button type="button" id="addPageNode">+ 페이지 연결 노드</button><button type="button" id="followPageNode">선택 연결 이동</button><button type="button" id="renamePage">페이지 이름</button>
+<button class="primary" id="addRect">+ 직사각형</button><button id="addDiamond">+ 판단 마름모</button><button id="addEdge">+ 연결선</button><button id="marqueeBtn" type="button" aria-pressed="false">▣ 영역 선택</button><button id="selectAllBoxes" type="button">전체 박스</button><button id="clearBoxSelection" type="button">선택 해제</button><button id="delete">선택 삭제</button>
+<span class="sep"></span><button id="undo">↶ 실행 취소</button><button id="redo">↷ 다시 실행</button>
+<span class="sep"></span><button id="fit">화면 맞춤</button><button id="zoomOut">－</button><span id="zoomText">100%</span><button id="zoomIn">＋</button>
+<span class="sep"></span><button id="autoLayout">수직 정렬</button>
+<span class="sep"></span><button id="gridToggle" type="button" aria-pressed="false" title="격자 보기 (G)">격자 표시</button><button id="duplicateSelection" type="button" title="선택한 박스 복제 (Ctrl+D)">복제</button><button id="viewSvgSource" type="button" title="SVG 코드 확인">SVG 코드</button><button id="saveSVG" class="primary">SVG 저장</button><button id="savePNG">PNG 저장</button><button id="saveJSON">작업 저장</button>
+<label class="filebtn">작업 불러오기<input type="file" accept=".json,application/json" id="loadJSON"></label>
+<label class="filebtn">SVG 불러오기<input type="file" accept=".svg,image/svg+xml" id="loadSVG"></label>
+</div>
+<dialog id="sourceDialog" class="source-dialog" aria-label="SVG 소스 코드 보기">
+  <div class="source-header"><strong>SVG 원본 코드 미리보기</strong><button id="closeSource" type="button" aria-label="닫기">✕</button></div>
+  <p>도면을 SVG로 저장할 때 생성되는 코드를 확인할 수 있습니다. 코드 편집은 지원하지 않습니다.</p>
+  <textarea id="svgSourcePreview" readonly spellcheck="false" aria-label="SVG 코드" rows="16"></textarea>
+  <div class="source-actions"><button type="button" id="copySvgSource">SVG 코드 복사</button><button type="button" id="closeSource2">닫기</button></div>
+</dialog>
+<div class="layout">
+<section class="stage"><div id="viewport"><div id="work"><svg id="canvas" xmlns="http://www.w3.org/2000/svg" width="1380" height="1570" viewBox="0 0 1380 1570" aria-label="편집 가능한 수직형 플로우차트"></svg></div></div></section>
+<div id="panelSplitter" role="separator" tabindex="0" aria-orientation="vertical"
+     aria-label="오른쪽 편집창 너비 조절" aria-valuemin="320" aria-valuemax="900"
+     aria-valuenow="600" title="좌우로 드래그하여 편집창 너비 조절 · 더블클릭 초기화"></div>
+<aside>
+<div class="inspector-top"><h2>속성 편집 <span id="selectionTitle" style="color:#6b5ac1">· 전체 도면</span></h2>
+<span class="inspector-caption">도면의 박스·화살표를 클릭하면 해당 설정이 나타납니다.</span></div>
+<div id="welcomeGuide" class="welcome-guide" role="region" aria-label="처음 사용 안내">
+ <div class="welcome-title">처음 사용하기 <span class="welcome-badge">3단계</span></div>
+ <ol><li><strong>박스 선택</strong> — 왼쪽 그림을 클릭</li>
+ <li><strong>내용·색상 수정</strong> — 이 설정창에서 변경</li>
+ <li><strong>SVG 저장</strong> — 상단의 SVG 저장 클릭</li></ol>
+ <div class="welcome-actions"><button id="demoSelect" type="button" class="primary">예제 박스 선택해 보기</button><button id="hideWelcome" type="button">안내 닫기</button></div>
+ <p class="welcome-hint">여러 개 선택: Ctrl+클릭 · 빈 공간 드래그. 이동: 박스 드래그.</p>
+</div>
+<div id="quickInspector" class="quick-inspector">
+ <div class="quick-inspector-title">기본 스타일 선택</div>
+ <div id="stylePresetPanel" class="preset-panel">
+  <label for="stylePresetSelect">스타일 프리셋</label>
+  <select id="stylePresetSelect" aria-label="스타일 프리셋 선택">
+    <option value="navy">곤색 선 · 투명</option>
+    <option value="mono">흑백 기본형</option>
+    <option value="blue">하늘색 채움</option>
+    <option value="mint">연녹색 채움</option>
+    <option value="wine">와인색 강조</option>
+    <option value="dark">진한 곤색 채움</option>
+  </select>
+  <div id="stylePresetPreview" class="preset-preview" aria-live="polite">
+    <span id="stylePresetSwatch" class="preset-swatch">Aa</span>
+    <span id="stylePresetDesc">곤색 윤곽선 · 투명 배경 · 기본 글자</span>
+  </div>
+  <div class="preset-actions">
+   <button id="applyStyleSelected" type="button">선택 박스에 적용</button>
+   <button id="makeStyleDefault" type="button">새 박스 기본 지정</button>
+  </div>
+  <p id="stylePresetStatus" class="preset-note">기존 박스는 선택 후 적용합니다. 신규 박스에는 지정한 기본 스타일을 사용합니다.</p>
+ </div>
+ <div class="quick-inspector-title" style="margin-top:16px">빠른 편집</div>
+ <div id="quickNode" class="quick-scope" hidden>
+  <div class="property-grid">
+   <label>주 글자(px)<input id="quickFontMain" type="number" min="10" max="80" step="1"></label>
+   <label>설명 글자(px)<input id="quickFontSub" type="number" min="9" max="60" step="1"></label>
+   <label>가로 정렬<select id="quickTextAlign"><option value="center">가운데</option><option value="left">왼쪽</option><option value="right">오른쪽</option></select></label>
+   <label>글자색<input id="quickTextColor" type="color" value="#172439"></label>
+   <label>테두리색<input id="quickStrokeColor" type="color" value="#1f3a5f"></label>
+   <label>테두리 두께(px)<input id="quickStrokeWidth" type="number" min="1" max="15" step="0.5"></label>
+   <label>좌우 여백(px)<input id="quickPad" type="number" min="12" max="80" step="1"></label>
+   <label>상하 여백(px)<input id="quickPadY" type="number" min="8" max="80" step="0.33"></label>
+   <label>중심 X(px)<input id="quickX" type="number" step="5"></label>
+   <label>중심 Y(px)<input id="quickY" type="number" step="5"></label>
+   <label>가로 크기(px)<input id="quickW" type="number" min="120" max="1800" step="5"></label>
+   <label>세로 크기(px)<input id="quickH" type="number" min="50" max="800" step="5"></label>
+   <label class="check-property"><input id="quickTransparent" type="checkbox" checked> 투명 배경</label>
+   <label>배경색<input id="quickFill" type="color" value="#ffffff"></label>
+   <label class="check-property"><input id="quickAutoFit" type="checkbox" checked> 글자에 크기 맞춤</label>
+  </div>
+  <div class="quick-action"><button id="quickFitNode" type="button">선택 박스 자동 맞춤</button><button id="quickResetNode" type="button">서식 초기화</button></div>
+ </div>
+ <div id="quickEdge" class="quick-scope" hidden>
+  <div class="property-grid">
+   <label>선 색상<input id="quickEdgeColor" type="color" value="#5a1e1e"></label>
+   <label>선 굵기(px)<input id="quickEdgeWidth" type="number" min="1" max="15" step="0.5"></label>
+   <label>화살촉 크기(px)<input id="quickArrowSize" type="number" min="7" max="32" step="1"></label>
+   <label>분기 글자 크기(px)<input id="quickEdgeFont" type="number" min="10" max="35" step="1"></label>
+   <label class="wide-property">분기 글자<input id="quickEdgeLabel" type="text" placeholder="예 / 아니오 / 반복"></label>
+   <label>출발 연결점<select id="quickFromPort"><option value="top">위</option><option value="right">오른쪽</option><option value="bottom">아래</option><option value="left">왼쪽</option></select></label>
+   <label>도착 연결점<select id="quickToPort"><option value="top">위</option><option value="right">오른쪽</option><option value="bottom">아래</option><option value="left">왼쪽</option></select></label>
+   <label class="wide-property">선 연결 방식<select id="quickEdgeRoute"><option value="auto">자동 직교</option><option value="direct">직선 연결</option><option value="loopLeft">왼쪽 복귀</option><option value="loopRight">오른쪽 복귀</option></select></label>
+  </div>
+  <div class="quick-action"><button type="button" id="quickResetEdge">연결선 기본 서식</button></div>
+ </div>
+ <div id="quickGlobal" class="quick-scope" hidden>
+  <div class="property-grid">
+   <label class="wide-property">도면 제목<input id="quickDocTitle" type="text" aria-label="도면 제목"></label>
+   <label class="wide-property">부제<input id="quickDocSubtitle" type="text" aria-label="도면 부제"></label>
+   <label>기본 글자(px)<input id="quickGlobalFont" type="number" min="12" max="50" step="1"></label>
+   <label>보조 글자(px)<input id="quickGlobalSub" type="number" min="10" max="40" step="1"></label>
+   <label>기본 여백(px)<input id="quickGlobalPad" type="number" min="12" max="80" step="1"></label>
+   <label>기본 윤곽선(px)<input id="quickGlobalStroke" type="number" min="1" max="10" step="0.5"></label>
+   <label>도면 너비(px)<input id="quickPageW" type="number" min="700" max="7000" step="20"></label>
+   <label>세로 간격(px)<input id="quickGlobalGap" type="number" min="20" max="130" step="1"></label>
+  </div>
+ </div>
+ <div id="quickMultiple" class="quick-scope" hidden><p class="inspector-tip">여러 박스를 선택했습니다. 아래 일괄 편집 항목에서 한 번에 서식을 변경하세요.</p></div>
+ <div id="quickHeading" class="quick-scope" hidden>
+ <div class="property-grid">
+  <label>글자 크기(px)<input id="quickHeadingSize" type="number" min="12" max="72" step="1"></label>
+  <label>글자 정렬<select id="quickHeadingAlign"><option value="left">왼쪽</option><option value="center">가운데</option><option value="right">오른쪽</option></select></label>
+  <label>중심 X(px)<input id="quickHeadingX" type="number" step="5"></label>
+  <label>중심 Y(px)<input id="quickHeadingY" type="number" step="5"></label>
+ </div>
+ </div>
+</div>
+<section id="batchPanel" class="batch-panel" hidden>
+  <div class="batch-header"><strong id="batchCount">0개 박스 선택</strong><button type="button" id="batchClear">선택 해제</button></div>
+  <p class="batch-hint">Shift+클릭으로 추가 선택하거나 상단 「영역 선택」으로 드래그하세요. 선택한 박스만 수정됩니다.</p>
+  <div class="batch-grid">
+    <label><input type="checkbox" id="batchDoFonts" checked> 글자 크기(px)</label>
+    <div class="batch-fields"><label>첫 줄 <input type="number" id="batchFontMain" value="23" min="10" max="80"></label><label>둘째 줄 <input type="number" id="batchFontSub" value="18" min="9" max="60"></label></div>
+    <label><input type="checkbox" id="batchDoPadding" checked> 내부 여백(px)</label>
+    <div class="batch-fields"><label>좌우 여백(px)<input type="number" id="batchPad" value="12" min="12" max="80"></label><label>상하 여백(px)<input type="number" id="batchPadY" value="10.67" min="8" max="80" step="0.33"></label></div>
+    <label><input type="checkbox" id="batchDoOutline" checked> 윤곽선</label>
+    <div class="batch-fields"><label>색상 <input type="color" id="batchOutlineColor" value="#1f3a5f"></label><label>굵기 <input type="number" id="batchOutlineWidth" value="3.5" min="1" max="12" step=".5"></label></div>
+    <label><input type="checkbox" id="batchDoFill"> 배경색 변경</label>
+    <div class="batch-fields"><label><input type="checkbox" id="batchTransparent" checked> 투명</label><input type="color" id="batchFill" value="#ffffff"></div>
+    <label class="batch-wide"><input type="checkbox" id="batchFit" checked> 직사각형 글자 크기에 자동 맞춤</label>
+  </div>
+  <button id="applyBatch" class="primary batch-submit" type="button">선택한 박스 일괄 적용</button>
+  <div class="batch-fields"><label>일괄 글자 정렬<select id="batchTextAlign"><option value="">변경 안 함</option><option value="center">가운데</option><option value="left">왼쪽</option><option value="right">오른쪽</option></select></label><label>글자색<input id="batchTextColor" type="color" value="#172439"></label></div>
+<label class="batch-wide"><input type="checkbox" id="batchDoTextColor"> 위 글자색 일괄 적용</label>
+<button id="batchResetStyle" type="button">선택한 박스 스타일 기본값으로 복원</button>
+</section>
+<details id="inspectorAdvanced"><summary>세부 설정 · 좌표 · 텍스트 · 연결</summary><div class="advanced-body">
+<div id="generalSettings">
+ <div class="field"><label for="titleInput">도면 제목</label><input id="titleInput"></div>
+ <div class="field"><label for="subtitleInput">부제</label><input id="subtitleInput"></div>
+ <div class="twocol"><div class="field"><label for="pageW">도면 너비</label><input type="number" id="pageW" min="700" max="7000" step="20"></div><div class="field"><label for="fontMain">기본 글자(px)</label><input type="number" id="fontMain" min="12" max="50"></div></div>
+ <div class="twocol"><div class="field"><label for="fontSub">보조 글자(px)</label><input type="number" id="fontSub" min="10" max="40"></div><div class="field"><label for="strokeW">윤곽선(px)</label><input type="number" id="strokeW" min="1" max="10" step="0.2"></div></div>
+ <div class="twocol"><div class="field"><label for="gapY">세로 간격(px)</label><input type="number" id="gapY" min="20" max="130"></div><div class="field"><label for="padNode">내부 여백(px)</label><input type="number" id="padNode" min="12" max="60"></div></div>
+ <button id="fitAllText" style="width:100%">모든 직사각형을 글자 크기에 맞춤</button>
+ <button id="centerTitle" style="width:100%">제목 중앙 및 페이지 여백 정리</button>
+ <div class="note">도면 제목은 왼쪽 정렬이 기본입니다. <b>최소 내부 여백 12px ≈ 3mm</b>(96dpi 기준).</div>
+</div>
+
+<div id="headingSettings" style="display:none">
+ <div class="note">제목·부제는 각각 투명한 박스입니다. 글자를 드래그해 이동하고 선택 테두리의 조절점으로 크기를 변경합니다. 저장할 때 테두리는 제거됩니다.</div>
+ <div class="field"><label for="headingValue">텍스트</label><textarea id="headingValue" rows="2"></textarea></div>
+ <div class="field"><label for="headingSize">글자 크기</label><input type="range" id="headingSize" min="12" max="72" step="1"><span id="headingSizeLabel"></span></div>
+ <div class="field"><label for="headingAlign">정렬</label><select id="headingAlign"><option value="left">왼쪽</option><option value="center">가운데</option><option value="right">오른쪽</option></select></div>
+ <label class="heading-switch"><input type="checkbox" id="headingAuto" checked> 글자 길이에 따라 박스 자동 맞춤</label>
+ <div class="heading-buttons"><button type="button" id="headingFit">글자에 맞춤</button><button type="button" id="headingCenter">페이지 중앙 정렬</button></div>
+</div>
+<div id="nodeSettings" style="display:none">
+ <div class="field"><label>첫 줄 · 코드명 / 제목</label><textarea id="nodeTitle" rows="2"></textarea></div>
+ <div class="field"><label>둘째 줄 · 설명</label><textarea id="nodeSub" rows="2"></textarea></div>
+ <div class="twocol"><div class="field"><label>X (중심)</label><input id="nodeX" type="number" step="5"></div><div class="field"><label>Y (중심)</label><input id="nodeY" type="number" step="5"></div></div>
+ <div class="twocol"><div class="field"><label>가로(px)</label><input id="nodeW" type="number" min="120" max="1800" step="10"></div><div class="field"><label>세로(px)</label><input id="nodeH" type="number" min="50" max="800" step="10"></div></div>
+ <div class="twocol"><div class="field"><label>도형 종류</label><select id="nodeType"><option value="rect">직사각형</option><option value="diamond">판단 마름모</option><option value="page">페이지 연결</option></select></div><div class="field"><label>배경색(선택)</label><input id="nodeFill" type="color"></div></div><label class="auto-fit-toggle"><input id="nodeTransparent" type="checkbox" checked> 투명 배경(기본값)</label>
+ <div class="field auto-fit-field"><label class="auto-fit-toggle"><input id="autoFitText" type="checkbox" checked> 글자 수정 시 직사각형 자동 맞춤</label><button type="button" id="fitSelectedText">선택한 직사각형 글자에 맞춤</button></div>
+ <div class="note">박스를 드래그하면 연결선이 자동으로 따라갑니다. 판단 마름모는 꼭짓점에서만 분기합니다.</div>
+</div>
+<div id="edgeSettings" style="display:none">
+ <div class="field"><label>연결선 · 시작 노드</label><select id="edgeFrom"></select></div>
+ <div class="field"><label>연결선 · 도착 노드</label><select id="edgeTo"></select></div>
+ <div class="twocol"><div class="field"><label>출발 꼭짓점/변</label><select id="edgeFromPort"><option value="bottom">아래</option><option value="right">오른쪽</option><option value="left">왼쪽</option><option value="top">위</option></select></div><div class="field"><label>도착 꼭짓점/변</label><select id="edgeToPort"><option value="top">위</option><option value="left">왼쪽</option><option value="right">오른쪽</option><option value="bottom">아래</option></select></div></div>
+ <div class="field"><label>분기 글자 (예/아니오/반복)</label><input id="edgeLabel"></div>
+ <div class="field"><label>경로</label><select id="edgeRoute"><option value="auto">자동 직교</option><option value="loopLeft">왼쪽 복귀</option><option value="loopRight">오른쪽 복귀</option><option value="direct">직선 연결</option></select></div>
+ <div class="note">마름모에서는 도형 꼭짓점을 출발점으로 계산합니다. 반대쪽 노드를 이동해도 자동 재계산됩니다.</div>
+</div>
+<div id="rawSettings" style="display:none"><div class="field"><label>원본 SVG 요소</label><textarea rows="5" id="rawLabel" placeholder="텍스트 요소만 편집됩니다"></textarea></div><div class="note">불러온 외부 SVG는 원본 요소 선택·이동·문자 편집·재저장을 지원합니다. 자동 연결 재배치는 편집기 고유 JSON 도면에서 지원합니다.</div></div>
+</div></details><div class="section"><div class="section-title">정렬 및 배치</div><div class="twocol"><button id="alignX">선택 노드 중앙 정렬</button><button id="distributeY">선택 노드 세로 정렬</button></div><div class="field"><label>캔버스 보기</label><div class="slideline"><input id="zoomRange" type="range" min="20" max="175" step="5"><span id="zoomValue">100%</span></div></div></div>
+<div class="section"><div class="section-title">편집 방법</div><p class="note">① 도형을 눌러 선택 → ② 드래그하거나 오른쪽 숫자 수정 → ③ SVG 저장. 여러 도형 선택은 <b>Shift+클릭</b>. 연결선 추가는 시작 도형과 끝 도형을 차례로 클릭합니다.</p><p class="note">단축키: <kbd>Delete</kbd> 삭제 · <kbd>Ctrl+Z</kbd> 취소 · <kbd>Ctrl+Shift+Z</kbd> 복원 · 방향키 5px 이동.</p><button id="resetScene" style="width:100%">01장 기본 예제로 초기화</button></div>
+<div class="section"><div class="section-title">현재 파일</div><p id="fileStatus" class="note">01장 내장 예제가 로드되었습니다.</p></div>
+</aside></div>
+<div class="status"><span id="statusLine">준비됨 · 도형을 클릭하여 이동·편집하세요.</span><span>외부 서버 없이 작동 · 파일은 브라우저에서만 처리</span></div><div id="toast"></div>
+<script>
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+function baseScene(){
+  const center=590,right=1080;
+  const node=(id,type,x,y,w,h,title,sub,fill)=>({id,type,x,y,w,h,title,sub,fill:'none'});
+  const nodes=[
+   node('start','rect',center,160,350,72,'프로그램 시작 · main()','','#ece8fc'),
+   node('declare','rect',center,282,520,85,'char line[LINE_CAPACITY]','int result; 변수 선언','#ffffff'),
+   node('intro','rect',center,410,575,85,'uart_puts() · 시작 안내 출력','LED ON / LED OFF / STATUS','#e6f0fc'),
+   node('status','rect',center,535,575,85,'report_status("STATUS")','AXI REG0 읽기 · UART 상태 출력','#ece8fc'),
+   node('receive','rect',center,700,630,93,'read_command_line(line, LINE_CAPACITY)','Enter까지 블로킹 대기 · 결과 반환','#ece8fc'),
+   node('d1','diamond',center,872,380,142,'result > 0 ?','정상 문자열 명령','#fff4d5'),
+   node('cmd','rect',right,872,425,92,'handle_command(line)','LED ON / OFF / STATUS 분기','#ece8fc'),
+   node('d2','diamond',center,1093,380,142,'result == -2 ?','허용하지 않는 제어문자','#fff4d5'),
+   node('err1','rect',right,1093,425,92,'uart_puts()','ERROR: invalid character','#e6f0fc'),
+   node('d3','diamond',center,1314,380,142,'result < 0 ?','입력 길이 초과','#fff4d5'),
+   node('err2','rect',right,1314,425,92,'uart_puts()','ERROR: command too long','#e6f0fc'),
+   node('repeat','rect',center,1515,605,94,'빈 줄은 무시 · 다음 명령 대기','while (1) 반복','#ffffff')
+  ];
+  const edge=(id,from,to,fp,tp,label='',route='auto')=>({id,from,to,fp,tp,label,route});
+  const edges=[edge('e1','start','declare','bottom','top'),edge('e2','declare','intro','bottom','top'),edge('e3','intro','status','bottom','top'),edge('e4','status','receive','bottom','top'),edge('e5','receive','d1','bottom','top'),edge('e6','d1','cmd','right','left','예'),edge('e7','d1','d2','bottom','top','아니오'),edge('e8','d2','err1','right','left','예'),edge('e9','d2','d3','bottom','top','아니오'),edge('e10','d3','err2','right','left','예'),edge('e11','d3','repeat','bottom','top','아니오'),edge('e12','cmd','repeat','right','right','','loopRight'),edge('e13','err1','repeat','right','right','','loopRight'),edge('e14','err2','repeat','right','right','','loopRight'),edge('e15','repeat','receive','left','left','반복','loopLeft')];
+  return {version:3,headings:{title:{x:725,y:48,w:1000,h:58,size:33,align:'left',autoFit:true},subtitle:{x:725,y:98,w:950,h:38,size:20,align:'left',autoFit:true}},title:'P2-01 · main() 전체 실행 흐름',subtitle:'블로킹 UART 수신 · 문자열 명령 분류 · 반복 실행',width:1450,height:1640,settings:{fontMain:23,fontSub:18,stroke:3.5,gap:38,pad:12,padY:8,defaultPreset:'navy'},nodes,edges};
+}
+let activeHeading=null,headingDrag=null;
+let marqueeMode=false,marquee=null,spacePanHeld=false,editorGridVisible=false;
+let scene=baseScene(),mode='structured',rawDoc=null,rawSelected=null,selected=new Set(),edgeSelect=null,connecting=false,connectSource=null,zoom=0.8,history=[],future=[],drag=null,historyLast=0;
+const esc=s=>String(s??'');
+let pageBook=[JSON.parse(JSON.stringify(scene))],pageIndex=0;
+function cloneScene(){return JSON.parse(JSON.stringify(scene))}
+function checkpoint(){if(mode!=='structured')return;history.push(cloneScene());if(history.length>70)history.shift();future=[];updateUndo()}
+function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length}
+function undo(){if(!history.length||mode!=='structured')return;future.push(cloneScene());scene=history.pop();selected.clear();edgeSelect=null;render();updateUndo();showProps()}
+function redo(){if(!future.length||mode!=='structured')return;history.push(cloneScene());scene=future.pop();selected.clear();edgeSelect=null;render();updateUndo();showProps()}
+function sEl(tag,attrs={},textContent){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>{if(v!==undefined&&v!==null)el.setAttribute(k,String(v))});if(tag==='text'&&!('font-family' in attrs))el.setAttribute('font-family',"Noto Sans KR, Noto Sans CJK KR, Malgun Gothic, sans-serif");if(textContent!==undefined)el.textContent=textContent;return el}
+function getNode(id){return scene.nodes.find(n=>n.id===id)}
+function port(n,key){return {top:[n.x,n.y-n.h/2],bottom:[n.x,n.y+n.h/2],left:[n.x-n.w/2,n.y],right:[n.x+n.w/2,n.y]}[key]||[n.x,n.y]}
+function edgePath(e){const a=getNode(e.from),b=getNode(e.to);if(!a||!b)return null;const [sx,sy]=port(a,e.fp),[tx,ty]=port(b,e.tp);const all=scene.nodes;let pts=[[sx,sy]];if(e.via&&Number.isFinite(+e.via.x)&&Number.isFinite(+e.via.y)){const vx=+e.via.x,vy=+e.via.y;return [[sx,sy],[sx,vy],[vx,vy],[vx,ty],[tx,ty]].filter((p,i,a)=>i===0||p[0]!==a[i-1][0]||p[1]!==a[i-1][1]);}
+ if(e.route==='loopLeft'){const minx=Math.min(...all.map(n=>n.x-n.w/2));const x=Math.max(25,minx-60);pts.push([x,sy],[x,ty],[tx,ty]);}
+ else if(e.route==='loopRight'){const maxx=Math.max(...all.map(n=>n.x+n.w/2));const x=Number.isFinite(e.laneX)?Math.min(scene.width-35,Math.max(maxx+35,e.laneX)):Math.min(scene.width-35,maxx+35);pts.push([x,sy],[x,ty],[tx,ty]);}
+ else if(e.route==='direct'||(sx===tx||sy===ty)){pts.push([tx,ty]);}
+ else if(['right','left'].includes(e.fp)){const mid=(sx+tx)/2;pts.push([mid,sy],[mid,ty],[tx,ty]);}
+ else{const mid=(sy+ty)/2;pts.push([sx,mid],[tx,mid],[tx,ty]);}
+ return pts;
+}
+function edgeControlPoint(e,pts=edgePath(e)){if(e.via&&Number.isFinite(+e.via.x)&&Number.isFinite(+e.via.y))return {x:+e.via.x,y:+e.via.y};if(!pts||pts.length<2)return {x:0,y:0};const a=pts[0],b=pts[pts.length-1];if(e.route==='loopLeft'||e.route==='loopRight')return {x:pts[1][0],y:(a[1]+b[1])/2};if(['left','right'].includes(e.fp))return {x:pts.length>2?pts[1][0]:(a[0]+b[0])/2,y:(a[1]+b[1])/2};return {x:(a[0]+b[0])/2,y:pts.length>2?pts[1][1]:(a[1]+b[1])/2};}
+function polyPath(points){return 'M '+points.map(p=>p.join(' ')).join(' L ')}
+
+/* v1.4: fit rectangular node dimensions to measured glyph widths */
+function measureFlowText(text,fontSize,weight){
+ const textValue=String(text||'');
+ if(!measureFlowText.canvas)measureFlowText.canvas=document.createElement('canvas');
+ const context=measureFlowText.canvas.getContext('2d');
+ if(!context)return Array.from(textValue).reduce((n,ch)=>n+(ch.codePointAt(0)>127?fontSize:fontSize*.65),0);
+ context.font=weight+' '+fontSize+'px "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", sans-serif';
+ return context.measureText(textValue).width;
+}
+function fitRectToText(node){
+ if(!node||node.type!=='rect')return false;
+ const fs=Number(node.fontMain||scene.settings.fontMain)||23,ss=Number(node.fontSub||scene.settings.fontSub)||18;
+ const pad=Math.max(12,Number(node.pad??scene.settings.pad)||12);
+ const padY=Math.max(8,Number(node.padY??scene.settings.padY??(pad-1.3333)));
+ // Keep left/right 3mm. Top/bottom each reduce by 1pt (~1.33px).
+ const textWidth=Math.max(measureFlowText(node.title||'',fs,750),measureFlowText(node.sub||'',ss,400));
+ const inset=pad;
+ const neededW=Math.ceil(((textWidth*1.08)+inset*2)/5)*5;
+ const neededH=node.sub?Math.ceil((padY*2+fs*1.32+ss*1.45+10)/5)*5:
+                          Math.ceil((padY*2+fs*1.45)/5)*5;
+ const w=Math.max(150,neededW),h=Math.max(62,neededH);
+ const changed=node.w!==w||node.h!==h;
+ node.w=w;node.h=h;
+ return changed;
+}
+function fitAllRects(){let count=0;for(const node of scene.nodes)if(fitRectToText(node))count++;return count;}
+
+function drawText(group,n){
+ const fs=Number(n.fontMain||scene.settings.fontMain)||23,ss=Number(n.fontSub||scene.settings.fontSub)||18;
+ const hasSub=Boolean(n.sub);
+ let titleSize=fs,subSize=ss;
+ if(n.type==='diamond'){
+  const width=Math.max(measureFlowText(n.title||'',fs,750),measureFlowText(n.sub||'',ss,400));
+  const limit=n.w*.52;
+  const scale=width>limit?limit/width:1;
+  titleSize=Math.max(11,fs*scale);
+  subSize=Math.max(10,ss*scale);
+ }
+ // Both lines are horizontally centered. Their combined visual block is vertically centered.
+ const gap=6;
+ const titleY=hasSub?n.y-(subSize+gap)/2:n.y;
+ const subY=n.y+(titleSize+gap)/2;
+ const align=n.textAlign||'center';
+ const pad=Math.max(12,Number(n.pad||scene.settings.pad)||12);
+ const textX=align==='left'?n.x-n.w/2+pad:align==='right'?n.x+n.w/2-pad:n.x;
+ const common={'text-anchor':align==='left'?'start':align==='right'?'end':'middle',
+               'dominant-baseline':'middle','pointer-events':'none'};
+ group.appendChild(sEl('text',{x:textX,y:titleY,...common,'font-size':titleSize,'font-weight':750,fill:n.textColor||'#172439'},n.title||''));
+ if(hasSub)group.appendChild(sEl('text',{x:textX,y:subY,...common,'font-size':subSize,'font-weight':400,fill:n.subTextColor||n.textColor||'#273e5e'},n.sub));
+}
+/* v1.7: render-aware geometry repair. Keep all existing node centers and edges. */
+let geometryPass=0;
+function refineRenderedText(svg){
+ if(geometryPass>=2){geometryPass=0;return false;}
+ let changed=false;
+ for(const n of scene.nodes){
+  const g=Array.from(svg.querySelectorAll('#nodes [data-node]')).find(el=>el.dataset.node===n.id);
+  if(!g)continue;
+  const texts=Array.from(g.querySelectorAll('text'));
+  if(!texts.length)continue;
+  if(n.type==='rect'&&$('autoFitText')?.checked&&n.autoFit!==false){
+   const pad=Math.max(12,Number(n.pad??scene.settings.pad)||12);
+   const padY=Math.max(8,Number(n.padY??scene.settings.padY??(pad-1.3333)));
+   let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+   for(const t of texts){
+    try{const b=t.getBBox();left=Math.min(left,b.x);right=Math.max(right,b.x+b.width);
+        top=Math.min(top,b.y);bottom=Math.max(bottom,b.y+b.height);}catch{}
+   }
+   if(Number.isFinite(left)&&Number.isFinite(right)&&Number.isFinite(top)&&Number.isFinite(bottom)){
+    // Symmetric sizing makes all four margins at least 3 mm around real glyphs.
+    const w=Math.ceil((2*Math.max(n.x-left,right-n.x)+2*pad)/5)*5;
+    const h=Math.ceil((2*Math.max(n.y-top,bottom-n.y)+2*padY)/5)*5;
+    if(w>n.w+1){n.w=w;changed=true;}
+    if(h>n.h+1){n.h=h;changed=true;}
+   }
+  }else if(n.type==='diamond'){
+   const limit=n.w*.50;
+   for(const tx of texts)try{
+    const box=tx.getBBox();
+    if(box.width>limit&&box.width>0){
+     const fs=parseFloat(tx.getAttribute('font-size'))||18;
+     tx.setAttribute('font-size',String(Math.max(10,fs*limit/box.width*.96)));
+    }
+   }catch{}
+  }
+ }
+ if(changed){geometryPass++;return true;}
+ geometryPass=0;return false;
+}
+function render(){if(mode==='raw'){renderRaw();return}const s=$('canvas');s.replaceChildren();s.setAttribute('width',scene.width);s.setAttribute('height',scene.height);s.setAttribute('viewBox',`0 0 ${scene.width} ${scene.height}`);
+ const defs=sEl('defs');
+ for(const [i,e] of scene.edges.entries()){
+  const sz=Math.max(7,Math.min(32,Number(e.arrowSize)||16));
+  const marker=sEl('marker',{id:'arrowhead-'+i,markerWidth:sz,markerHeight:sz,refX:sz*.875,refY:sz/2,
+     orient:'auto',markerUnits:'userSpaceOnUse'});
+  marker.append(sEl('path',{d:'M 0 0 L '+sz+' '+sz/2+' L 0 '+sz+' z',fill:e.strokeColor||'#5A1E1E'}));defs.append(marker);
+ }
+ s.append(defs);
+ s.append(sEl('rect',{x:0,y:0,width:scene.width,height:scene.height,fill:'#fff'}));
+ if(editorGridVisible){
+   const grids=sEl('g',{id:'editor-grid','pointer-events':'none'});
+   for(let x=0;x<=scene.width;x+=40)grids.append(sEl('line',{x1:x,y1:0,x2:x,y2:scene.height,stroke:'#9eb0d0','stroke-opacity':.32,'stroke-width':1}));
+   for(let y=0;y<=scene.height;y+=40)grids.append(sEl('line',{x1:0,y1:y,x2:scene.width,y2:y,stroke:'#9eb0d0','stroke-opacity':.32,'stroke-width':1}));
+   s.append(grids);
+ }
+ drawHeadingBoxes(s);
+ const eg=sEl('g',{id:'edges'});scene.edges.forEach((e,idx)=>{let pts=edgePath(e);if(!pts)return;const g=sEl('g',{'data-edge':e.id,class:'edge'+(edgeSelect===e.id?' selected':'')});g.append(sEl('path',{d:polyPath(pts),fill:'none',stroke:e.strokeColor||'#5A1E1E','stroke-width':e.strokeWidth||Math.max(3.5,scene.settings.stroke),'stroke-linejoin':'round','stroke-linecap':'round','marker-end':'url(#arrowhead-'+idx+')'}));g.append(sEl('path',{d:polyPath(pts),fill:'none',stroke:'transparent','stroke-width':Math.max(22,32/Math.max(zoom,.2)),'pointer-events':'stroke',class:'edge-hit'}));if(e.label){const [sx,sy]=pts[0], [nx,ny]=pts[1];const lx=sx===nx?sx+45:(sx+nx)/2,ly=sy===ny?sy-13:(sy+ny)/2;
+ g.append(sEl('text',{x:lx,y:ly,'text-anchor':'middle','font-size':e.labelFont||17,'font-weight':750,fill:e.strokeColor||'#5A1E1E',class:'edge-label'},e.label));}
+ if(edgeSelect===e.id){const bends=pts.slice(1,-1).filter((p,i,a)=>{const prev=pts[i],next=pts[i+2];return prev&&next&&(prev[0]!==p[0]||next[0]!==p[0])&&(prev[1]!==p[1]||next[1]!==p[1]);});bends.forEach((p,i)=>g.append(sEl('circle',{cx:p[0],cy:p[1],r:10,fill:'#fff3cf',stroke:'#b7791f','stroke-width':3,'data-edge-control':e.id,'data-bend-x':p[0],'data-bend-y':p[1],style:'cursor:move','pointer-events':'all'})));}eg.append(g)});s.append(eg);
+ const ng=sEl('g',{id:'nodes'});scene.nodes.forEach(n=>{const g=sEl('g',{'data-node':n.id,class:'node'+(selected.has(n.id)?' selected':'')});let shape;if(n.type==='diamond'){const pts=[[n.x,n.y-n.h/2],[n.x+n.w/2,n.y],[n.x,n.y+n.h/2],[n.x-n.w/2,n.y]];shape=sEl('polygon',{points:pts.map(p=>p.join(',')).join(' '),fill:n.fill,stroke:n.strokeColor||'#1F3A5F','stroke-width':n.strokeWidth||scene.settings.stroke,'stroke-linejoin':'round',class:'node-shape','pointer-events':'all'});}else{shape=sEl('rect',{x:n.x-n.w/2,y:n.y-n.h/2,width:n.w,height:n.h,fill:n.fill,stroke:n.strokeColor||'#1F3A5F','stroke-width':n.strokeWidth||scene.settings.stroke,class:'node-shape','pointer-events':'all'});}g.append(shape);drawText(g,n);ng.append(g)});s.append(ng);
+ // Check the SVG's actual rendered glyph bounds, not just Canvas estimates.
+ if(refineRenderedText(s)){return render();}
+ drawEditHandles(s);
+ $('work').style.width=(scene.width*zoom)+'px';$('work').style.height=(scene.height*zoom)+'px';s.style.width=(scene.width*zoom)+'px';s.style.height=(scene.height*zoom)+'px'; // SVG width CSS scaled by zoom; pointer coordinate mapping uses screen CTM
+ updateZoom();
+}
+function renderRaw(){const s=$('canvas');s.replaceChildren();if(rawDoc){const root=rawDoc.documentElement;for(const n of Array.from(root.childNodes)){s.append(document.importNode(n,true))}const vb=root.getAttribute('viewBox');if(vb)s.setAttribute('viewBox',vb);const w=Number(root.getAttribute('width')?.replace('px',''))||1200;const h=Number(root.getAttribute('height')?.replace('px',''))||1500;s.setAttribute('width',w);s.setAttribute('height',h);$('work').style.width=(w*zoom)+'px';$('work').style.height=(h*zoom)+'px';s.style.width=(w*zoom)+'px';s.style.height=(h*zoom)+'px';}};
+function posFromPointer(evt){let pt=$('canvas').createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;const ctm=$('canvas').getScreenCTM();if(!ctm)return {x:0,y:0};return pt.matrixTransform(ctm.inverse())}
+function toast(msg){let e=$('toast');e.textContent=msg;e.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.display='none',2700)}
+function showProps(){const count=selected.size; $('headingSettings').style.display=(activeHeading&&mode==='structured')?'block':'none';$('generalSettings').style.display=(!count&&!edgeSelect&&!activeHeading&&mode==='structured')?'block':'none';$('nodeSettings').style.display=(count===1&&mode==='structured')?'block':'none';$('edgeSettings').style.display=(edgeSelect&&mode==='structured')?'block':'none';$('rawSettings').style.display=mode==='raw'?'block':'none';
+ $('selectionTitle').textContent=mode==='raw'?'· 외부 SVG':edgeSelect?'· 연결선':activeHeading?'· '+(activeHeading==='title'?'제목':'부제'):count>1?`· ${count}개 노드`:count===1?'· 노드':'· 전체 도면';
+ if(mode==='raw'){$('rawLabel').value=rawSelected?.textContent||'';return}
+ if(activeHeading){const h=getHeading(activeHeading);$('headingValue').value=scene[activeHeading];$('headingSize').value=h.size;$('headingSizeLabel').textContent=h.size+'px';$('headingAlign').value=h.align;$('headingAuto').checked=h.autoFit!==false;return;}
+ if(!count&&!edgeSelect&&!activeHeading){for(const [id,val] of Object.entries({titleInput:scene.title,subtitleInput:scene.subtitle,pageW:scene.width,fontMain:scene.settings.fontMain,fontSub:scene.settings.fontSub,strokeW:scene.settings.stroke,gapY:scene.settings.gap,padNode:scene.settings.pad})){$(id).value=val;$(id).dataset.lastApplied=String(val);}}
+ if(count===1){const n=getNode([...selected][0]);if(!n)return;for(const [id,val] of Object.entries({nodeTitle:n.title,nodeSub:n.sub,nodeX:n.x,nodeY:n.y,nodeW:n.w,nodeH:n.h,nodeType:n.type,nodeFill:/^#[0-9a-fA-F]{6}$/.test(n.fill||'')?n.fill:'#ffffff'})){$(id).value=val;$(id).dataset.lastApplied=String(val);} $('nodeTransparent').checked=n.fill==='none'; $('nodeFill').disabled=n.fill==='none';}
+ if(edgeSelect){let e=scene.edges.find(x=>x.id===edgeSelect);if(!e)return;for(const id of ['edgeFrom','edgeTo']){$(id).replaceChildren(...scene.nodes.map(n=>new Option(n.id+' · '+n.title.slice(0,18),n.id)));}
+ for(const [id,val] of Object.entries({edgeFrom:e.from,edgeTo:e.to,edgeFromPort:e.fp,edgeToPort:e.tp,edgeLabel:e.label,edgeRoute:e.route})){$(id).value=val;$(id).dataset.lastApplied=String(val);}}}
+function updateUI(){render();showProps();updateUndo()}
+function changeField(id,cb){$(id).addEventListener('change',()=>{if(mode!=='structured')return;const next=$(id).value;if($(id).dataset.lastApplied===next)return;checkpoint();cb(next);$(id).dataset.lastApplied=next;updateUI()})}
+for(const [id,fn] of Object.entries({titleInput:v=>scene.title=v,subtitleInput:v=>scene.subtitle=v,pageW:v=>scene.width=+v,fontMain:v=>scene.settings.fontMain=+v,fontSub:v=>scene.settings.fontSub=+v,strokeW:v=>scene.settings.stroke=+v,gapY:v=>scene.settings.gap=+v,padNode:v=>scene.settings.pad=+v}))changeField(id,fn);
+for(const [id,key] of Object.entries({nodeTitle:'title',nodeSub:'sub',nodeX:'x',nodeY:'y',nodeW:'w',nodeH:'h',nodeType:'type',nodeFill:'fill'}))changeField(id,v=>{let n=getNode([...selected][0]);if(n)n[key]=['x','y','w','h'].includes(key)?+v:v});
+for(const [id,key] of Object.entries({edgeFrom:'from',edgeTo:'to',edgeFromPort:'fp',edgeToPort:'tp',edgeLabel:'label',edgeRoute:'route'}))changeField(id,v=>{let e=scene.edges.find(e=>e.id===edgeSelect);if(e)e[key]=v});
+function highlightStatus(){let b=$('statusLine');b.textContent=connecting?'연결선 모드: 시작 도형, 끝 도형을 차례로 누르세요.':selected.size?'도형 선택됨: 끌어서 옮기거나 오른쪽 속성을 수정하세요.':edgeSelect?'연결선 선택됨: 오른쪽에서 경로를 수정하세요.':'준비됨 · 도형을 클릭하여 이동·편집하세요.'}
+$('canvas').addEventListener('pointerdown',evt=>{if(evt.button!==0)return;if(activeHeading){activeHeading=null;render();}if(mode==='raw'){const target=evt.target.closest('g,rect,polygon,path,text');if(target&&target!==$('canvas')){rawSelected=target;showProps();drag={raw:true,target,origin:posFromPointer(evt),transform:target.getAttribute('transform')||'',moved:false};$('canvas').setPointerCapture(evt.pointerId);}return}
+ const grp=evt.target.closest('[data-node]');const ed=evt.target.closest('[data-edge]');
+ if(connecting){if(!grp)return;const id=grp.dataset.node;if(!connectSource){connectSource=id;toast('끝 도형을 선택하세요.')}else{if(id===connectSource){toast('다른 노드를 선택하세요');return;}checkpoint();let a=getNode(connectSource),b=getNode(id);let fp=b.y>a.y?'bottom':b.x>a.x?'right':'left';let tp=b.y>a.y?'top':b.x>a.x?'left':'right';scene.edges.push({id:'e'+Date.now().toString(36),from:connectSource,to:id,fp,tp,label:'',route:'auto'});connecting=false;connectSource=null;$('addEdge').classList.remove('primary');updateUI();toast('연결선을 추가했습니다.');}return;}
+ if(grp){const id=grp.dataset.node;if(evt.ctrlKey||evt.metaKey||evt.shiftKey||visioMultiSelect){if(selected.has(id))selected.delete(id);else selected.add(id)}else if(!selected.has(id)){selected.clear();selected.add(id)}edgeSelect=null;
+ if(evt.ctrlKey||evt.metaKey||evt.shiftKey||visioMultiSelect){drag=null;updateUI();highlightStatus();evt.preventDefault();return;}
+ drag={point:posFromPointer(evt),positions:[...selected].map(id=>({id,x:getNode(id).x,y:getNode(id).y})),moved:false,history:false};
+ $('canvas').setPointerCapture(evt.pointerId);updateUI();highlightStatus();evt.preventDefault();}
+ else if(ed){selected.clear();edgeSelect=ed.dataset.edge;const handle=evt.target.closest('[data-edge-control]');const edge=scene.edges.find(e=>e.id===edgeSelect);if(handle&&edge){const control={x:+handle.dataset.bendX,y:+handle.dataset.bendY};drag={edgeId:edge.id,point:posFromPointer(evt),control,moved:false,history:false};$('canvas').setPointerCapture(evt.pointerId);}else{drag=null;}updateUI();highlightStatus();evt.preventDefault();}
+ else{if(!marqueeMode){selected.clear();edgeSelect=null;updateUI();highlightStatus();}}});
+$('canvas').addEventListener('pointermove',evt=>{if(!drag)return;const p=posFromPointer(evt);if(drag.raw){const dx=p.x-drag.origin.x,dy=p.y-drag.origin.y;if(Math.abs(dx)+Math.abs(dy)>2){drag.target.setAttribute('transform',`translate(${dx} ${dy}) ${drag.transform}`);drag.moved=true;}return}
+ const dx=p.x-drag.point.x,dy=p.y-drag.point.y;if(Math.abs(dx)+Math.abs(dy)<2&&!drag.moved)return;if(drag.edgeId){const edge=scene.edges.find(e=>e.id===drag.edgeId);if(!edge)return;if(!drag.history){checkpoint();drag.history=true;}edge.via={x:Math.round(drag.control.x+dx),y:Math.round(drag.control.y+dy)};drag.moved=true;render();evt.preventDefault();return;}
+ if(!drag.history){checkpoint();drag.history=true;}for(const a of drag.positions){const n=getNode(a.id);if(n){n.x=Math.round((a.x+dx)/5)*5;n.y=Math.round((a.y+dy)/5)*5;}}drag.moved=true;render();evt.preventDefault()});
+$('canvas').addEventListener('pointerup',evt=>{if(drag){drag=null;showProps();}try{$('canvas').releasePointerCapture(evt.pointerId)}catch{}});
+$('canvas').addEventListener('dblclick',evt=>{if(mode==='raw'){if(rawSelected&&rawSelected.tagName?.toLowerCase()==='text'){let v=prompt('글자 수정',rawSelected.textContent);if(v!==null){rawSelected.textContent=v;$('rawLabel').value=v;}}return;}let g=evt.target.closest('[data-node]');if(!g)return;let n=getNode(g.dataset.node);if(!n)return;if(n.type==='page'&&Number.isInteger(n.targetPage)){goToPage(n.targetPage);return;}let val=prompt('박스 첫 줄 글자 수정',n.title);if(val!==null){checkpoint();n.title=val;updateUI();}});
+$('rawLabel').addEventListener('change',()=>{if(mode==='raw'&&rawSelected&&rawSelected.tagName?.toLowerCase()==='text'){rawSelected.textContent=$('rawLabel').value}});
+function uid(prefix){return prefix+Date.now().toString(36)+Math.floor(Math.random()*999)}
+function addNode(type){if(mode!=='structured'){toast('외부 SVG는 그룹 이동 편집 모드입니다. JSON 도면에서 새 노드를 추가할 수 있습니다.');return;}checkpoint();const id=uid('n');const n={id,type,x:scene.width/2,y:scene.height-135,w:type==='diamond'?365:465,h:type==='diamond'?140:96,title:type==='diamond'?'조건인가?':'새 처리 단계',sub:type==='diamond'?'예 / 아니오 분기':'설명을 입력하세요',fill:'none'};
+ applyPresetToNode(n,scene.settings.defaultPreset||'navy');
+ scene.nodes.push(n);selected=new Set([id]);edgeSelect=null;if(type==='rect'&&$('autoFitText')?.checked)fitRectToText(getNode(id));updateUI();toast('새 도형이 추가되었습니다. 이동해 배치하세요.')}
+$('addRect').onclick=()=>addNode('rect');$('addDiamond').onclick=()=>addNode('diamond');$('addEdge').onclick=()=>{if(mode!=='structured'){toast('연결선 자동 편집은 구조화 도면에서만 가능합니다.');return;}connecting=!connecting;connectSource=null;$('addEdge').classList.toggle('primary',connecting);highlightStatus();toast(connecting?'시작 도형을 클릭하세요.':'연결선 추가 취소')};
+function deleteSelected(){if(mode==='raw'){if(rawSelected){rawSelected.remove();rawSelected=null;showProps();}return;}if(!selected.size&&!edgeSelect)return;checkpoint();if(selected.size){scene.nodes=scene.nodes.filter(n=>!selected.has(n.id));scene.edges=scene.edges.filter(e=>!selected.has(e.from)&&!selected.has(e.to));}if(edgeSelect)scene.edges=scene.edges.filter(e=>e.id!==edgeSelect);selected.clear();edgeSelect=null;updateUI()}
+$('delete').onclick=deleteSelected;$('undo').onclick=undo;$('redo').onclick=redo;
+function setZoom(v){zoom=Math.min(1.75,Math.max(.2,v));render()}
+function updateZoom(){$('zoomText').textContent=Math.round(zoom*100)+'%';$('zoomValue').textContent=Math.round(zoom*100)+'%';$('zoomRange').value=Math.round(zoom*100)}
+$('zoomIn').onclick=()=>setZoom(zoom+.1);$('zoomOut').onclick=()=>setZoom(zoom-.1);$('zoomRange').oninput=e=>setZoom(+e.target.value/100);
+function fitCanvas(){let s=$('viewport'),w=mode==='raw'?Number($('canvas').getAttribute('width')):scene.width;setZoom(Math.max(.2,Math.min(1,(s.clientWidth-24)/w)));s.scrollTop=0;s.scrollLeft=0;}
+$('fit').onclick=fitCanvas;
+$('centerTitle').onclick=()=>{if(mode!=='structured')return;checkpoint();let all=scene.nodes;if(!all.length)return;let minx=Math.min(...all.map(n=>n.x-n.w/2)),maxx=Math.max(...all.map(n=>n.x+n.w/2));let shift=scene.width/2-(minx+maxx)/2;for(const n of all)n.x=Math.round(n.x+shift);scene.height=Math.max(600,Math.max(...all.map(n=>n.y+n.h/2))+70);updateUI();toast('도면의 중앙축과 여백을 정리했습니다.')};
+$('autoLayout').onclick=()=>{if(mode!=='structured')return;checkpoint();let main=scene.nodes.filter(n=>n.x<scene.width*.58).sort((a,b)=>a.y-b.y),side=scene.nodes.filter(n=>n.x>=scene.width*.58).sort((a,b)=>a.y-b.y);let maxW=Math.max(...main.map(n=>n.w),500);let mx=scene.width*.43,rx=scene.width*.77;let y=158;for(const n of main){n.x=mx;n.y=y;y+=n.h+scene.settings.gap;}for(const n of side){const src=scene.edges.find(e=>e.to===n.id&&e.fp==='right');const an=src&&getNode(src.from);n.x=rx;if(an)n.y=an.y;}scene.height=Math.max(scene.height,y+80);updateUI();toast('수직 배치를 적용했습니다. 연결선도 자동 재계산됩니다.')};
+$('alignX').onclick=()=>{if(mode!=='structured'||selected.size<2){toast('Shift+클릭으로 2개 이상 선택하세요.');return;}checkpoint();let list=[...selected].map(getNode);let x=list.reduce((a,n)=>a+n.x,0)/list.length;list.forEach(n=>n.x=Math.round(x));updateUI()};
+$('distributeY').onclick=()=>{if(mode!=='structured'||selected.size<3){toast('세로 정렬은 노드 3개 이상 선택하세요.');return;}checkpoint();const ns=[...selected].map(getNode).sort((a,b)=>a.y-b.y);let start=ns[0].y,end=ns.at(-1).y;ns.forEach((n,i)=>n.y=Math.round(start+(end-start)*i/(ns.length-1)));updateUI()};
+$('resetScene').onclick=()=>{if(!confirm('현재 도면을 초기화할까요? 필요하면 먼저 JSON으로 저장하세요.'))return;scene=baseScene();pageBook=[JSON.parse(JSON.stringify(scene))];pageIndex=0;refreshPagePicker();history=[];future=[];selected.clear();edgeSelect=null;mode='structured';rawDoc=null;$('modeLabel').textContent='편집 모드: 노드';updateUI();fitCanvas();toast('01장 기본 예제를 불러왔습니다.')};
+function svgString(){const s=$('canvas');const copy=s.cloneNode(true);copy.querySelectorAll('#vizio-overlays,.edge-hit,#vizio-preview,#rubberBand,#editor-grid').forEach(el=>el.remove());copy.querySelectorAll('.selected').forEach(g=>g.classList.remove('selected'));copy.querySelectorAll('path').forEach(p=>{if(p.closest('.edge')){const edge=p.closest('[data-edge]');const model=edge&&scene.edges.find(e=>e.id===edge.dataset.edge);p.setAttribute('stroke',model?.strokeColor||'#5A1E1E');p.setAttribute('stroke-width',String(model?.strokeWidth||Math.max(3.5,scene.settings.stroke)))}});copy.querySelectorAll('.node-shape').forEach(p=>{p.removeAttribute('filter');const g=p.closest('[data-node]');const node=g&&getNode(g.dataset.node);p.setAttribute('stroke',node?.strokeColor||'#1F3A5F');p.setAttribute('stroke-width',String(node?.strokeWidth||scene.settings.stroke))});copy.removeAttribute('style');copy.setAttribute('xmlns',NS);copy.setAttribute('version','1.1');copy.setAttribute('width',s.getAttribute('width'));copy.setAttribute('height',s.getAttribute('height'));return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(copy)}
+function download(text,type,name){const blob=new Blob([text],{type}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('saveSVG').onclick=()=>{download(svgString(),'image/svg+xml;charset=utf-8',chapterFileStem()+'_Page'+String(pageIndex+1).padStart(2,'0')+'_Flow.svg');toast('SVG 파일을 저장했습니다.')};
+$('saveJSON').onclick=()=>{if(mode!=='structured'){toast('외부 SVG는 SVG로 저장해 주세요.');return;}download(JSON.stringify(exportPageDocument(),null,2),'application/json;charset=utf-8',chapterFileStem()+'_Flow_Project.json');toast('편집용 JSON 작업 파일 저장')};
+$('savePNG').onclick=()=>{const xml=svgString();const u=URL.createObjectURL(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}));const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const ctx=c.getContext('2d');ctx.fillStyle='white';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0);URL.revokeObjectURL(u);c.toBlob(b=>{if(!b){toast('PNG 변환 실패');return;}const v=URL.createObjectURL(b),a=document.createElement('a');a.href=v;a.download=chapterFileStem()+'_Page'+String(pageIndex+1).padStart(2,'0')+'_Flow.png';a.click();setTimeout(()=>URL.revokeObjectURL(v),1000);toast('PNG 파일을 저장했습니다.')},'image/png')};im.onerror=()=>{URL.revokeObjectURL(u);toast('PNG 변환 실패: 원본 SVG 속성을 확인해 주세요.')};im.src=u};
+$('loadJSON').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const original=JSON.parse(await f.text());const x=Array.isArray(original.pages)?validatePageDocument(original).pages[0]:original;if(!Array.isArray(x.nodes)||!Array.isArray(x.edges)||!x.settings||typeof x.title!=='string')throw Error('지원하지 않는 구조');scene=x;pageBook=Array.isArray(original.pages)?original.pages.map(p=>JSON.parse(JSON.stringify(p))):[JSON.parse(JSON.stringify(x))];pageIndex=0;refreshPagePicker();mode='structured';rawDoc=null;history=[];future=[];selected.clear();edgeSelect=null;$('modeLabel').textContent='편집 모드: 노드';updateUI();fitCanvas();$('fileStatus').textContent=f.name+' 불러오기 완료';}catch(err){toast('JSON 불러오기 실패: '+err.message)}e.target.value=''};
+$('loadSVG').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const txt=await f.text();const p=new DOMParser().parseFromString(txt,'image/svg+xml');if(p.querySelector('parsererror')||p.documentElement.localName!=='svg')throw Error('유효한 SVG가 아님');for(const el of Array.from(p.querySelectorAll('*'))){if(['script','foreignObject','iframe','image','use','a','style','animate','animateTransform','set'].includes(el.localName)){el.remove();continue;}for(const attr of Array.from(el.attributes)){if(attr.name.startsWith('on')||/href|url\(/i.test(attr.name+' '+attr.value))el.removeAttribute(attr.name)}}mode='raw';rawDoc=p;rawSelected=null;selected.clear();edgeSelect=null;$('modeLabel').textContent='편집 모드: 외부 SVG';renderRaw();showProps();fitCanvas();$('fileStatus').textContent=f.name+' 원본 요소 편집 모드';toast('SVG를 불러왔습니다. 도형 선택·이동·텍스트 수정·재저장 가능')}catch(err){toast('SVG 불러오기 실패: '+err.message)}e.target.value=''};
+/* Restore canvas keyboard shortcuts after clicking a shape while a property input was focused. */
+$('canvas').addEventListener('pointerdown',()=>{const active=document.activeElement;if(active&&['INPUT','TEXTAREA','SELECT'].includes(active.tagName))active.blur()},{capture:true});
+window.addEventListener('keydown',e=>{const t=e.target?.tagName?.toLowerCase();if(['input','textarea','select'].includes(t))return;if(e.key==='Delete'||e.key==='Backspace'){deleteSelected();e.preventDefault()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}else if(mode==='structured'&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)&&(selected.size||edgeSelect)){e.preventDefault();const step=e.shiftKey?1:5;const dx=e.key==='ArrowRight'?step:e.key==='ArrowLeft'?-step:0;const dy=e.key==='ArrowDown'?step:e.key==='ArrowUp'?-step:0;const nodes=[...selected].map(getNode).filter(Boolean);const edge=edgeSelect?scene.edges.find(item=>item.id===edgeSelect):null;if(!nodes.length&&!edge)return;checkpoint();nodes.forEach(n=>{n.x+=dx;n.y+=dy});if(edge){/* Nudge the route bend, never detach its endpoint anchors. */const pts=edgePath(edge);if(pts&&pts.length>=2){const start=pts[0],end=pts[pts.length-1];const bends=pts.slice(1,-1).filter((p,i)=>{const a=pts[i],b=pts[i+2];return a&&b&&(a[0]!==p[0]||b[0]!==p[0])&&(a[1]!==p[1]||b[1]!==p[1]);});const point=bends[Math.floor(bends.length/2)]||[(pts[0][0]+pts[pts.length-1][0])/2,(pts[0][1]+pts[pts.length-1][1])/2];const vx=edge.via?.x??point[0],vy=edge.via?.y??point[1];edge.via={x:vx+dx,y:vy+dy};}}/* render() recalculates every connector from current node ports. */render();showProps()}});
+window.addEventListener('resize',()=>{if(window.innerWidth<870&&zoom>0.8)fitCanvas()});
+updateUI();setTimeout(fitCanvas,100);
+
+/* v1.1: sliders and step buttons for all geometry/style values */
+const knobIds=['pageW','fontMain','fontSub','strokeW','gapY','padNode','nodeX','nodeY','nodeW','nodeH'];
+function knobBounds(id){
+  if(id==='nodeX') return [0,Math.max(1500,scene.width),5];
+  if(id==='nodeY') return [0,Math.max(1800,scene.height),5];
+  const field=$(id);return [Number(field.min)||0,Number(field.max)||3000,Number(field.step)||1];
+}
+function applyKnob(id,val){
+  const n=selected.size===1?getNode([...selected][0]):null;
+  const settings={pageW:()=>scene.width=val,fontMain:()=>scene.settings.fontMain=val,
+    fontSub:()=>scene.settings.fontSub=val,strokeW:()=>scene.settings.stroke=val,
+    gapY:()=>scene.settings.gap=val,padNode:()=>scene.settings.pad=val,
+    nodeX:()=>{if(n)n.x=val},nodeY:()=>{if(n)n.y=val},
+    nodeW:()=>{if(n)n.w=val},nodeH:()=>{if(n)n.h=val}};
+  settings[id]?.();
+  if(['fontMain','fontSub','padNode'].includes(id)&&$('autoFitText')?.checked)fitAllRects();
+  $(id).value=String(val);$(id).dataset.lastApplied=String(val);
+  render();
+}
+function syncKnobs(){
+  for(const id of knobIds){
+    const num=$(id),range=$('slider_'+id);if(!num||!range)continue;
+    const [min,max,step]=knobBounds(id);
+    range.min=String(min);range.max=String(max);range.step=String(step);
+    range.value=num.value;
+    const detail=$('value_'+id);
+    if(detail)detail.textContent=String(num.value);
+  }
+}
+for(const id of knobIds){
+  const num=$(id);if(!num)continue;
+  const [min,max,step]=knobBounds(id);
+  const parent=num.parentNode,wrap=document.createElement('div');
+  wrap.className='knob';wrap.setAttribute('role','group');
+  wrap.setAttribute('aria-label',(parent.querySelector('label')?.textContent||id)+' 바로 조절');
+  const minus=document.createElement('button');minus.type='button';minus.textContent='−';minus.setAttribute('aria-label','값 줄이기');
+  const plus=document.createElement('button');plus.type='button';plus.textContent='+';plus.setAttribute('aria-label','값 늘리기');
+  const slider=document.createElement('input');slider.type='range';slider.id='slider_'+id;
+  slider.min=String(min);slider.max=String(max);slider.step=String(step);slider.value=num.value;
+  slider.setAttribute('aria-label',(parent.querySelector('label')?.textContent||id)+' 슬라이더');
+  num.title='숫자 직접 입력도 가능';num.setAttribute('aria-label',(parent.querySelector('label')?.textContent||id)+' 현재 값');
+  parent.insertBefore(wrap,num);wrap.append(minus,slider,plus,num);
+  let gesture=false;
+  const update=v=>{
+    const [lo,hi,delta]=knobBounds(id);
+    const rounded=Number(Math.min(hi,Math.max(lo,Math.round(v/delta)*delta)).toFixed(2));
+    applyKnob(id,rounded);slider.value=String(rounded);
+  };
+  slider.addEventListener('pointerdown',()=>{checkpoint();gesture=true},{passive:true});
+  slider.addEventListener('input',()=>{
+    if(!gesture){checkpoint();gesture=true;}
+    update(Number(slider.value));
+  });
+  slider.addEventListener('change',()=>{gesture=false;showProps();syncKnobs()});
+  for(const [b,sign] of [[minus,-1],[plus,1]]){
+    b.addEventListener('click',()=>{
+      if(mode!=='structured')return;checkpoint();const [, ,delta]=knobBounds(id);
+      update((Number(num.value)||0)+sign*delta);showProps();syncKnobs();
+    });
+  }
+  num.addEventListener('change',syncKnobs);
+}
+const stage=document.querySelector('.stage');
+const mobile=document.createElement('div');
+mobile.id='mobileTools';mobile.setAttribute('aria-label','도면 빠른 조절');
+mobile.innerHTML='<button id="quickMinus" type="button" aria-label="도면 축소">−</button>'+
+ '<span class="pct" id="quickZoom">100%</span>'+
+ '<button id="quickPlus" type="button" aria-label="도면 확대">＋</button>'+
+ '<button id="quickFit" type="button">맞춤</button>'+
+ '<button id="quickProps" type="button" class="primary">선택 편집</button>';
+stage.appendChild(mobile);
+$('quickMinus').onclick=()=>$('zoomOut').click();
+$('quickPlus').onclick=()=>$('zoomIn').click();
+$('quickFit').onclick=()=>$('fit').click();
+$('quickProps').onclick=()=>{
+  document.querySelector('aside').scrollIntoView({behavior:'smooth',block:'start'});
+  if(!selected.size&&!edgeSelect)toast('도형을 먼저 선택하면 해당 항목의 슬라이더가 나타납니다.');
+};
+const originalUpdateZoom=updateZoom;
+updateZoom=function(){originalUpdateZoom();$('quickZoom').textContent=Math.round(zoom*100)+'%'};
+const originalUpdateUI=updateUI;
+updateUI=function(){originalUpdateUI();syncKnobs()};
+let pan=null;
+
+/* Basic canvas gesture: drag blank to select; hold Space to pan.
+   Ctrl/Cmd/Shift while dragging adds nodes to the existing selection. */
+function boxContainsNode(rect,n){
+ const l=n.x-n.w/2,r=n.x+n.w/2,t=n.y-n.h/2,b=n.y+n.h/2;
+ // Default intersection allows selecting a shape without enclosing all its corners.
+ return l<=rect.right&&r>=rect.left&&t<=rect.bottom&&b>=rect.top;
+}
+function marqueeHitIDs(g){
+ const l=Math.min(g.start.x,g.end.x),r=Math.max(g.start.x,g.end.x);
+ const t=Math.min(g.start.y,g.end.y),b=Math.max(g.start.y,g.end.y);
+ return scene.nodes.filter(n=>boxContainsNode({left:l,right:r,top:t,bottom:b},n)).map(n=>n.id);
+}
+const inputIsText=e=>['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName)||e.target?.isContentEditable;
+document.addEventListener('keydown',e=>{
+ if((e.code==='Space'||e.key===' ')&&!inputIsText(e)&&!e.repeat){
+  spacePanHeld=true;document.body.classList.add('space-panning');e.preventDefault();
+ }
+});
+document.addEventListener('keyup',e=>{
+ if(e.code==='Space'||e.key===' '){spacePanHeld=false;document.body.classList.remove('space-panning');}
+});
+window.addEventListener('blur',()=>{spacePanHeld=false;document.body.classList.remove('space-panning')});
+$('viewport').addEventListener('pointerdown',e=>{
+ if(e.button!==0)return;
+ if(e.target.closest?.('[data-node],[data-edge],[data-resize],[data-bend],[data-end-role],[data-connect-port],[data-heading],[data-heading-handle]'))return;
+ if(!spacePanHeld&&mode==='structured'&&!connecting){
+  const start=posFromPointer(e);
+  marquee={start,end:start,pointerId:e.pointerId,
+    additive:e.ctrlKey||e.metaKey||e.shiftKey,
+    subtractive:e.altKey,clientStartX:e.clientX,clientStartY:e.clientY};
+  if(!marquee.additive&&!marquee.subtractive)selected.clear();
+  edgeSelect=null;activeHeading=null;
+  $('viewport').setPointerCapture(e.pointerId);
+  render();showRubberBand();updateBatchPanel();
+  e.preventDefault();return;
+ }
+ pan={x:e.clientX,y:e.clientY,left:$('viewport').scrollLeft,top:$('viewport').scrollTop,pointerId:e.pointerId};
+ $('viewport').setPointerCapture(e.pointerId);
+ e.preventDefault();
+},{capture:true});
+$('viewport').addEventListener('pointermove',e=>{
+ if(marquee&&marquee.pointerId===e.pointerId){
+  marquee.end=posFromPointer(e);
+  showRubberBand();e.preventDefault();return;
+ }
+ if(!pan||pan.pointerId!==e.pointerId)return;
+ $('viewport').scrollLeft=pan.left-(e.clientX-pan.x);
+ $('viewport').scrollTop=pan.top-(e.clientY-pan.y);
+ e.preventDefault();
+},{capture:true});
+const endPan=e=>{
+ if(marquee&&marquee.pointerId===e.pointerId){
+  const g=marquee;marquee=null;
+  const moved=Math.hypot(e.clientX-g.clientStartX,e.clientY-g.clientStartY)>=4;
+  if(moved){
+   for(const id of marqueeHitIDs(g)){
+    if(g.subtractive)selected.delete(id);else selected.add(id);
+   }
+  }
+  updateUI();highlightStatus();
+  e.preventDefault();return;
+ }
+ if(pan&&pan.pointerId===e.pointerId)pan=null;
+};
+$('viewport').addEventListener('pointerup',endPan,{capture:true});
+$('viewport').addEventListener('pointercancel',()=>{marquee=null;pan=null;render()},{capture:true});
+const oldFit=fitCanvas;
+fitCanvas=function(){oldFit();syncKnobs()};
+syncKnobs();
+
+
+/* v1.2 direct manipulation; structured document only. */
+let visioMultiSelect=false,visioDrag=null;
+const zoomCanvas=$('canvas');
+const toolbar=$('addEdge').parentElement;
+const visioBox=document.createElement('span');
+visioBox.id='vizioMode';
+visioBox.innerHTML='<button type="button" id="visioMulti" aria-pressed="false" title="모바일에서도 여러 도형 선택">다중 선택</button><button type="button" id="visioHelpBtn" title="편집 도움말">조작 도움말</button>';
+toolbar.appendChild(visioBox);
+const helpPanel=document.createElement('div');
+helpPanel.id='vizioHelp';
+helpPanel.textContent='도형 터치 → 모서리 ■를 끌어 크기 변경 · 청록색 ○에서 다른 도형까지 끌어 연결 · 화살표 선택 → 노란 조절점을 끌어 굴곡 변경 · 보라색 끝점으로 연결 위치 변경 · 빈 공간 드래그로 화면 이동';
+document.querySelector('aside').insertBefore(helpPanel,document.querySelector('aside').firstChild);
+$('visioHelpBtn').onclick=()=>{helpPanel.hidden=!helpPanel.hidden;helpPanel.scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('visioMulti').onclick=()=>{visioMultiSelect=!visioMultiSelect;$('visioMulti').classList.toggle('is-on',visioMultiSelect);$('visioMulti').setAttribute('aria-pressed',String(visioMultiSelect));toast(visioMultiSelect?'여러 도형을 차례로 선택하세요.':'단일 선택으로 전환했습니다.')};
+function nearestPort(n,x,y){
+ const keys=['top','right','bottom','left'];let best='top',d=Infinity;
+ for(const k of keys){const p=port(n,k),sq=(p[0]-x)**2+(p[1]-y)**2;if(sq<d){d=sq;best=k}}return best;
+}
+function makeVisioCircle(attrs,color,size=9){
+ return sEl('circle',{r:size,fill:color,stroke:'#5143ad','stroke-width':3,...attrs});
+}
+function drawEditHandles(svg){
+ if(mode!=='structured')return;
+ const g=sEl('g',{id:'vizio-overlays','aria-label':'드래그 편집 핸들'});drawHeadingSelection(g);
+ if(selected.size===1&&!edgeSelect){
+  const n=getNode([...selected][0]);if(n){
+   const dirs={nw:[-1,-1],n:[0,-1],ne:[1,-1],e:[1,0],se:[1,1],s:[0,1],sw:[-1,1],w:[-1,0]};
+   const halfW=n.w/2,halfH=n.h/2;
+   g.append(sEl('rect',{x:n.x-halfW-7,y:n.y-halfH-7,width:n.w+14,height:n.h+14,class:'vizio-selected-outline'}));
+   for(const [dir,[dx,dy]] of Object.entries(dirs)){
+    g.append(sEl('rect',{x:n.x+dx*halfW-Math.max(10,15/Math.max(zoom,.2)),y:n.y+dy*halfH-Math.max(10,15/Math.max(zoom,.2)),width:Math.max(20,30/Math.max(zoom,.2)),height:Math.max(20,30/Math.max(zoom,.2)),rx:2,class:'vizio-handle','data-resize':n.id,'data-dir':dir}));
+   }
+   for(const key of ['top','right','bottom','left']){
+    const [px,py]=port(n,key);
+    const dist=Math.max(27,34/Math.max(zoom,.2));const offsets={top:[0,-dist],right:[dist,0],bottom:[0,dist],left:[-dist,0]};
+    const o=offsets[key];
+    g.append(sEl('circle',{cx:px+o[0],cy:py+o[1],r:Math.max(11,17/Math.max(zoom,.2)),class:'vizio-port','data-connect-port':key,'data-connect-node':n.id,'aria-label':'연결선 시작 '+key}));
+    g.append(sEl('path',{d:polyPath([[px,py],[px+o[0]*.56,py+o[1]*.56]]),stroke:'#147b8d','stroke-width':2,fill:'none','pointer-events':'none'}));
+   }
+  }
+ }
+ if(edgeSelect){
+  const edge=scene.edges.find(e=>e.id===edgeSelect);
+  if(edge){const pts=edgePath(edge),from=getNode(edge.from),to=getNode(edge.to);
+   if(pts&&from&&to){
+    const start=port(from,edge.fp),end=port(to,edge.tp);
+    g.append(makeVisioCircle({cx:start[0],cy:start[1],class:'vizio-end','data-end-role':'from','data-edge-id':edge.id},'#e8dfff',Math.max(12,18/Math.max(zoom,.2))));
+    g.append(makeVisioCircle({cx:end[0],cy:end[1],class:'vizio-end','data-end-role':'to','data-edge-id':edge.id},'#e8dfff',12));
+    const vb=edge.via||{x:(start[0]+end[0])/2,y:(start[1]+end[1])/2};
+    g.append(makeVisioCircle({cx:vb.x,cy:vb.y,class:'vizio-bend','data-bend':edge.id},'#fff5d5',Math.max(13,19/Math.max(zoom,.2))));
+   }
+  }
+ }
+ svg.append(g);
+}
+function visioPointerStart(evt){
+ const hit=evt.target.closest?.('[data-resize],[data-bend],[data-end-role],[data-connect-port]');
+ if(!hit||evt.button!==0||mode!=='structured')return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const point=posFromPointer(evt);
+ if(hit.dataset.resize){
+  const n=getNode(hit.dataset.resize);
+  checkpoint();visioDrag={type:'resize',id:n.id,dir:hit.dataset.dir,original:{x:n.x,y:n.y,w:n.w,h:n.h},point,pid:evt.pointerId};
+ }else if(hit.dataset.bend){
+  const edge=scene.edges.find(e=>e.id===hit.dataset.bend);
+  checkpoint();visioDrag={type:'bend',id:edge.id,pid:evt.pointerId};
+ }else if(hit.dataset.endRole){
+  checkpoint();visioDrag={type:'end',id:hit.dataset.edgeId,role:hit.dataset.endRole,pid:evt.pointerId};
+ }else if(hit.dataset.connectPort){
+  visioDrag={type:'new',id:hit.dataset.connectNode,fromPort:hit.dataset.connectPort,pid:evt.pointerId};
+ }
+ zoomCanvas.setPointerCapture(evt.pointerId);
+}
+function visioPointerMove(evt){
+ if(!visioDrag)return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const p=posFromPointer(evt),d=visioDrag;
+ if(d.type==='resize'){
+  const n=getNode(d.id),o=d.original,dx=p.x-d.point.x,dy=p.y-d.point.y;
+  if(!n)return;
+  const sx=d.dir.includes('e')?1:d.dir.includes('w')?-1:0;
+  const sy=d.dir.includes('s')?1:d.dir.includes('n')?-1:0;
+  const nextW=Math.max(120,o.w+sx*dx);
+  const nextH=Math.max(66,o.h+sy*dy);
+  n.w=Math.round(nextW/5)*5;n.h=Math.round(nextH/5)*5;
+  n.x=Math.round(o.x+sx*(n.w-o.w)/2);
+  n.y=Math.round(o.y+sy*(n.h-o.h)/2);
+  render();
+ }else if(d.type==='bend'){
+  const e=scene.edges.find(e=>e.id===d.id);if(e){e.via={x:Math.round(p.x/5)*5,y:Math.round(p.y/5)*5};render();}
+ }else if(d.type==='end'||d.type==='new'){
+  const svg=$('canvas'),old=svg.querySelector('#vizio-preview');
+  if(old)old.remove();
+  const line=sEl('circle',{id:'vizio-preview',cx:p.x,cy:p.y,r:17,fill:'none',stroke:'#6547e0','stroke-width':3,'stroke-dasharray':'5 5','pointer-events':'none'});
+  svg.append(line);
+ }
+}
+function hitNodeFromPointer(evt){
+ const target=document.elementFromPoint(evt.clientX,evt.clientY);
+ const grp=target?.closest?.('[data-node]');
+ return grp?getNode(grp.dataset.node):null;
+}
+function visioPointerEnd(evt){
+ if(!visioDrag)return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const d=visioDrag;visioDrag=null;
+ const p=posFromPointer(evt);
+ if(d.type==='new'){
+  const target=hitNodeFromPointer(evt);
+  if(target&&target.id!==d.id){
+   checkpoint();
+   scene.edges.push({id:uid('e'),from:d.id,to:target.id,fp:d.fromPort,tp:nearestPort(target,p.x,p.y),route:'auto',label:''});
+   toast('연결선을 추가했습니다.');
+  }else toast('연결할 다른 도형 위에서 손을 놓으세요.');
+ }else if(d.type==='end'){
+  const edge=scene.edges.find(e=>e.id===d.id),target=hitNodeFromPointer(evt);
+  if(edge){
+   const current=getNode(edge[d.role]);
+   if(target){edge[d.role]=target.id;edge[d.role==='from'?'fp':'tp']=nearestPort(target,p.x,p.y);edge.via=null;}
+   else if(current)edge[d.role==='from'?'fp':'tp']=nearestPort(current,p.x,p.y);
+   toast('화살표 연결점을 수정했습니다.');
+  }
+ }
+ try{zoomCanvas.releasePointerCapture(evt.pointerId)}catch{}
+ updateUI();
+}
+zoomCanvas.addEventListener('pointerdown',visioPointerStart,{capture:true});
+zoomCanvas.addEventListener('pointermove',visioPointerMove,{capture:true});
+zoomCanvas.addEventListener('pointerup',visioPointerEnd,{capture:true});
+zoomCanvas.addEventListener('pointercancel',visioPointerEnd,{capture:true});
+
+
+/* v1.3 — reliable connector selection on touch screens */
+const edgePickerBlock=document.createElement('div');
+edgePickerBlock.style.cssText='padding:10px;border:1px solid #c4cee1;background:#f5f7fd;border-radius:8px;margin-bottom:14px;';
+edgePickerBlock.innerHTML='<label for="edgePicker" style="font-weight:700;display:block;margin-bottom:7px">연결선 선택 · 직접 편집</label>'+
+ '<select id="edgePicker" aria-label="편집할 연결선 선택" style="width:100%;height:46px;font-size:16px"><option value="">선을 터치하거나 여기서 선택</option></select>'+
+ '<p style="font-size:12px;margin:7px 0 0;color:#536177">선 선택 → 노란 조절점 이동 · 보라색 끝점 이동. 확대하면 편집이 쉽습니다.</p>';
+document.querySelector('aside').insertBefore(edgePickerBlock,helpPanel);
+const edgePicker=$('edgePicker');
+edgePicker.addEventListener('change',()=>{
+ const id=edgePicker.value;
+ selected.clear();edgeSelect=id||null;connecting=false;connectSource=null;
+ if(id){toast('연결선을 선택했습니다. 노란 점을 끌어 굴곡을 변경하세요.');}
+ updateUI();
+});
+const oldUpdateUIMobile=updateUI;
+updateUI=function(){
+ oldUpdateUIMobile();
+ const active=edgePicker.value;
+ edgePicker.replaceChildren(new Option('선을 터치하거나 여기서 선택',''));
+ for(let i=0;i<scene.edges.length;i++){
+  const e=scene.edges[i],a=getNode(e.from),b=getNode(e.to);
+  edgePicker.append(new Option((i+1)+'. '+(a?.title||e.from).slice(0,20)+' → '+(b?.title||e.to).slice(0,20),e.id));
+ }
+ edgePicker.value=edgeSelect||'';
+};
+const originalVisioEnd=visioPointerEnd;
+visioPointerEnd=function(evt){
+ if(visioDrag&&visioDrag.type==='new'){
+  // Ignore the original pointer capture target; elementFromPoint resolves the actual drop location.
+ }
+ originalVisioEnd(evt);
+};
+updateUI();
+
+
+/* v1.4 direct text fit controls */
+const autoFitText=$('autoFitText');
+function currentSingleRect(){return selected.size===1?getNode([...selected][0]):null}
+$('fitSelectedText').addEventListener('click',()=>{
+ const n=currentSingleRect();
+ if(!n||n.type==='diamond'){toast('직사각형 하나를 선택해 주세요.');return;}
+ checkpoint();fitRectToText(n);updateUI();toast('글자 길이와 내부 여백에 맞춰 크기를 조절했습니다.');
+});
+$('fitAllText').addEventListener('click',()=>{
+ if(mode!=='structured')return;
+ checkpoint();const count=fitAllRects();updateUI();toast(count+'개 직사각형의 크기를 조절했습니다.');
+});
+for(const id of ['nodeTitle','nodeSub']){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured'||!autoFitText.checked)return;
+  const n=currentSingleRect();
+  if(n&&fitRectToText(n)){updateUI();}
+ });
+}
+// Global font and padding adjustment should not shrink the font to fit old oversized boxes.
+for(const id of ['fontMain','fontSub','padNode']){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured'||!autoFitText.checked)return;
+  if(fitAllRects())updateUI();
+ });
+}
+
+
+/* v1.5 — independent transparent title & subtitle frames */
+function getHeading(key){
+ if(!scene.headings)scene.headings={};
+ if(!scene.headings[key]){
+  const main=key==='title';
+  scene.headings[key]={x:scene.width/2,y:main?48:98,w:main?1000:950,h:main?58:38,size:main?33:20,align:'left',autoFit:true};
+ }
+ return scene.headings[key];
+}
+function fitHeading(key){
+ const h=getHeading(key),t=String(scene[key]||''),font=key==='title'?780:400;
+ h.w=Math.max(140,Math.ceil((measureFlowText(t,h.size,font)+40)/10)*10);
+ h.h=Math.max(35,Math.ceil((h.size*1.52+12)/5)*5);
+ if((h.align||'left')==='left')h.x=h.w/2+50;
+}
+function drawHeadingBoxes(svg){
+ for(const key of ['title','subtitle']){
+  const h=getHeading(key),g=sEl('g',{'data-heading':key});
+  const left=h.x-h.w/2,top=h.y-h.h/2;
+  g.append(sEl('rect',{x:left,y:top,width:h.w,height:h.h,class:'heading-hit'}));
+  const align=h.align||'left',margin=12;
+  const x=align==='left'?left+margin:align==='right'?left+h.w-margin:h.x;
+  const anchor=align==='left'?'start':align==='right'?'end':'middle';
+  g.append(sEl('text',{x,y:h.y+h.size*.34,'font-size':h.size,'font-weight':key==='title'?780:400,fill:key==='title'?'#172439':'#617083','text-anchor':anchor,class:'heading-text'},scene[key]));
+  svg.append(g);
+ }
+}
+function drawHeadingSelection(g){
+ if(!activeHeading||mode!=='structured')return;
+ const h=getHeading(activeHeading),l=h.x-h.w/2,t=h.y-h.h/2;
+ g.append(sEl('rect',{x:l,y:t,width:h.w,height:h.h,class:'heading-outline'}));
+ const z=Math.max(14,23/Math.max(.25,zoom));
+ for(const [dir,sx,sy] of [['nw',-1,-1],['n',0,-1],['ne',1,-1],['e',1,0],['se',1,1],['s',0,1],['sw',-1,1],['w',-1,0]]){
+  g.append(sEl('rect',{x:h.x+sx*h.w/2-z/2,y:h.y+sy*h.h/2-z/2,width:z,height:z,rx:2,class:'heading-handle','data-heading-handle':dir,'data-heading-key':activeHeading}));
+ }
+}
+function moveHeading(evt){
+ if(!headingDrag)return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const d=headingDrag,p=posFromPointer(evt),dx=p.x-d.point.x,dy=p.y-d.point.y,h=getHeading(d.key);
+ if(d.handle){
+  const sx=d.handle.includes('e')?1:d.handle.includes('w')?-1:0,sy=d.handle.includes('s')?1:d.handle.includes('n')?-1:0;
+  h.w=Math.round(Math.max(140,d.original.w+sx*dx)/5)*5;
+  h.h=Math.round(Math.max(35,d.original.h+sy*dy)/5)*5;
+  h.x=d.original.x+sx*(h.w-d.original.w)/2;
+  h.y=d.original.y+sy*(h.h-d.original.h)/2;
+  h.autoFit=false;
+ }else{h.x=Math.round(d.original.x+dx);h.y=Math.round(d.original.y+dy)}
+ render();
+}
+function endHeading(evt){
+ if(!headingDrag)return;
+ evt.stopImmediatePropagation();evt.preventDefault();headingDrag=null;
+ try{$('canvas').releasePointerCapture(evt.pointerId)}catch{}
+ updateUI();
+}
+$('canvas').addEventListener('pointerdown',evt=>{
+ const hit=evt.target.closest?.('[data-heading-handle],[data-heading]');
+ if(!hit||mode!=='structured'||evt.button!==0)return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const key=hit.dataset.headingKey||hit.dataset.heading,h=getHeading(key);
+ checkpoint();activeHeading=key;selected.clear();edgeSelect=null;
+ headingDrag={key,point:posFromPointer(evt),handle:hit.dataset.headingHandle||null,original:{...h}};
+ $('canvas').setPointerCapture(evt.pointerId);
+ render();showProps();
+},{capture:true});
+$('canvas').addEventListener('pointermove',moveHeading,{capture:true});
+$('canvas').addEventListener('pointerup',endHeading,{capture:true});
+$('canvas').addEventListener('pointercancel',endHeading,{capture:true});
+$('headingValue').addEventListener('change',()=>{
+ if(!activeHeading)return;
+ checkpoint();scene[activeHeading]=$('headingValue').value;
+ if(getHeading(activeHeading).autoFit!==false)fitHeading(activeHeading);
+ updateUI();
+});
+$('headingSize').addEventListener('pointerdown',()=>{if(activeHeading)checkpoint()});
+$('headingSize').addEventListener('input',()=>{
+ if(!activeHeading)return;
+ const h=getHeading(activeHeading);h.size=Number($('headingSize').value);
+ $('headingSizeLabel').textContent=h.size+'px';
+ if(h.autoFit!==false)fitHeading(activeHeading);
+ render();
+});
+$('headingSize').addEventListener('change',()=>updateUI());
+$('headingAlign').addEventListener('change',()=>{
+ if(!activeHeading)return;checkpoint();getHeading(activeHeading).align=$('headingAlign').value;updateUI();
+});
+$('headingAuto').addEventListener('change',()=>{
+ if(!activeHeading)return;checkpoint();getHeading(activeHeading).autoFit=$('headingAuto').checked;
+ if($('headingAuto').checked)fitHeading(activeHeading);
+ updateUI();
+});
+$('headingFit').onclick=()=>{
+ if(!activeHeading)return;checkpoint();fitHeading(activeHeading);updateUI();
+};
+$('headingCenter').onclick=()=>{
+ if(!activeHeading)return;checkpoint();getHeading(activeHeading).x=scene.width/2;updateUI();
+};
+for(const id of ['titleInput','subtitleInput']){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured')return;
+  const key=id==='titleInput'?'title':'subtitle';
+  if(getHeading(key).autoFit!==false)fitHeading(key);
+  render();
+ });
+}
+
+
+/* Accessibility: keyboard nudge and double-click text editing */
+$('canvas').addEventListener('dblclick',evt=>{
+ const hit=evt.target.closest?.('[data-heading]');
+ if(!hit||mode!=='structured')return;
+ evt.stopImmediatePropagation();evt.preventDefault();
+ const key=hit.dataset.heading;
+ const value=prompt(key==='title'?'제목 수정':'부제 수정',scene[key]);
+ if(value===null)return;
+ checkpoint();scene[key]=value;
+ if(getHeading(key).autoFit!==false)fitHeading(key);
+ activeHeading=key;selected.clear();edgeSelect=null;updateUI();
+},{capture:true});
+document.addEventListener('keydown',evt=>{
+ if(mode!=='structured'||evt.ctrlKey||evt.metaKey||evt.altKey)return;
+ if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable)return;
+ if(evt.key==='Escape'&&activeHeading){activeHeading=null;updateUI();return}
+ if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(evt.key))return;
+ const delta=evt.shiftKey?10:1;
+ const dx=evt.key==='ArrowLeft'?-delta:evt.key==='ArrowRight'?delta:0;
+ const dy=evt.key==='ArrowUp'?-delta:evt.key==='ArrowDown'?delta:0;
+ if(!activeHeading&&!selected.size)return;
+ evt.preventDefault();checkpoint();
+ if(activeHeading){const h=getHeading(activeHeading);h.x+=dx;h.y+=dy}
+ else for(const id of selected){const n=getNode(id);if(n){n.x+=dx;n.y+=dy}}
+ updateUI();
+});
+
+
+/* v1.5 — transparent shapes, left alignment, intrinsic rectangle sizing */
+function useV15Defaults(){
+ for(const n of scene.nodes){n.fill='none';if(n.type==='rect')fitRectToText(n);}
+ for(const key of ['title','subtitle']){
+  const h=getHeading(key);
+  h.align='left';fitHeading(key);
+ }
+}
+useV15Defaults();
+$('nodeTransparent').addEventListener('change',()=>{
+ if(mode!=='structured')return;
+ const n=currentSingleRect();if(!n)return;
+ checkpoint();n.fill=$('nodeTransparent').checked?'none':$('nodeFill').value||'#ffffff';
+ updateUI();
+});
+$('nodeFill').addEventListener('change',()=>{
+ const n=currentSingleRect();
+ if(n&&n.fill!=='none'){$('nodeTransparent').checked=false;$('nodeFill').disabled=false;}
+});
+for(const id of ['nodeTitle','nodeSub']){
+ $(id).addEventListener('input',()=>{
+  if(mode!=='structured'||!$('autoFitText').checked)return;
+  const n=currentSingleRect();if(!n||n.type!=='rect')return;
+  const key=id==='nodeTitle'?'title':'sub';
+  if(n[key]!==$(id).value){n[key]=$(id).value;fitRectToText(n);render();$('nodeW').value=n.w;$('nodeH').value=n.h;}
+ });
+}
+const oldResetAction=$('resetScene').onclick;
+$('resetScene').onclick=()=>{
+ // The existing reset handler is preserved; apply the v1.5 style after reset completes.
+ oldResetAction();
+ if(mode==='structured'&&scene.version===3){useV15Defaults();updateUI();}
+};
+const originalInitFit=fitCanvas;
+fitCanvas=function(){originalInitFit();};
+updateUI();
+
+
+/* v2.1 property inspector divider: mouse, touch, keyboard, local preference */
+const splitter=$('panelSplitter');
+const layoutEl=document.querySelector('.layout');
+const PANEL_KEY='soc_svg_editor_inspector_width_v1';
+let panelWidth=600;
+const clampPanelWidth=(w)=>{
+ const available=layoutEl?.getBoundingClientRect().width||window.innerWidth;
+ const max=Math.max(320,Math.min(980,available-332));
+ return Math.round(Math.min(max,Math.max(320,Number(w)||600)));
+};
+function setPanelWidth(w,persist=false){
+ panelWidth=clampPanelWidth(w);
+ layoutEl.style.setProperty('--inspector-width',panelWidth+'px');
+ splitter.setAttribute('aria-valuenow',String(panelWidth));
+ splitter.setAttribute('aria-valuetext',panelWidth+'픽셀');
+ if(persist){try{localStorage.setItem(PANEL_KEY,String(panelWidth))}catch{}}
+}
+try{const saved=localStorage.getItem(PANEL_KEY);if(saved!==null)setPanelWidth(Number(saved));else setPanelWidth(600)}
+catch{setPanelWidth(600)}
+let panelDrag=null;
+splitter.addEventListener('pointerdown',e=>{
+ if(e.button!==0||window.innerWidth<=870)return;
+ panelDrag={pointerId:e.pointerId,x:e.clientX,width:panelWidth};
+ splitter.setPointerCapture(e.pointerId);
+ document.body.classList.add('resizing-panel');
+ e.preventDefault();
+});
+splitter.addEventListener('pointermove',e=>{
+ if(!panelDrag||e.pointerId!==panelDrag.pointerId)return;
+ setPanelWidth(panelDrag.width+panelDrag.x-e.clientX);
+ e.preventDefault();
+});
+function finishPanelDrag(e){
+ if(!panelDrag)return;
+ if(e.pointerId!==undefined&&e.pointerId!==panelDrag.pointerId)return;
+ panelDrag=null;
+ document.body.classList.remove('resizing-panel');
+ setPanelWidth(panelWidth,true);
+ if(window.innerWidth>870){const vp=$('viewport'),savedTop=vp.scrollTop;requestAnimationFrame(()=>{fitCanvas();vp.scrollTop=savedTop;});}
+}
+splitter.addEventListener('pointerup',finishPanelDrag);
+splitter.addEventListener('pointercancel',finishPanelDrag);
+splitter.addEventListener('lostpointercapture',finishPanelDrag);
+splitter.addEventListener('dblclick',()=>setPanelWidth(600,true));
+splitter.addEventListener('keydown',e=>{
+ const step=e.shiftKey?50:10;
+ if(e.key==='ArrowLeft'){setPanelWidth(panelWidth+step,true);e.preventDefault();}
+ if(e.key==='ArrowRight'){setPanelWidth(panelWidth-step,true);e.preventDefault();}
+ if(e.key==='Home'){setPanelWidth(320,true);e.preventDefault();}
+ if(e.key==='End'){setPanelWidth(980,true);e.preventDefault();}
+});
+window.addEventListener('resize',()=>{setPanelWidth(panelWidth);if(window.innerWidth>870){const vp=$('viewport'),y=vp.scrollTop;requestAnimationFrame(()=>{fitCanvas();vp.scrollTop=y;});}});
+
+
+/* v2.2 multi-selection, selection rectangle, and batch style editing */
+function showRubberBand(){
+ const svg=$('canvas'),old=svg.querySelector('#rubberBand');if(old)old.remove();
+ if(!marquee)return;
+ const a=marquee.start,b=marquee.end;
+ svg.append(sEl('rect',{id:'rubberBand',x:Math.min(a.x,b.x),y:Math.min(a.y,b.y),
+   width:Math.abs(a.x-b.x),height:Math.abs(a.y-b.y)}));
+}
+$('marqueeBtn').onclick=()=>{
+ marqueeMode=!marqueeMode;$('marqueeBtn').classList.toggle('active',marqueeMode);
+ $('marqueeBtn').setAttribute('aria-pressed',String(marqueeMode));
+ toast(marqueeMode?'영역 선택 안내: 빈 공간에서 드래그하세요. Ctrl·Shift는 추가 선택입니다.':'영역 선택은 별도 모드 없이도 사용할 수 있습니다.');
+};
+function selectBoxes(onlyRect=false){
+ if(mode!=='structured')return;
+ selected=new Set(scene.nodes.filter(n=>!onlyRect||n.type==='rect').map(n=>n.id));
+ edgeSelect=null;activeHeading=null;updateUI();
+ toast(selected.size+'개 박스를 선택했습니다.');
+}
+$('selectAllBoxes').onclick=()=>selectBoxes();
+$('clearBoxSelection').onclick=$('batchClear').onclick=()=>{selected.clear();edgeSelect=null;updateUI()};
+let lastBatchCount=0;
+function updateBatchPanel(){
+ const panel=$('batchPanel');
+ const count=selected.size;
+ panel.hidden=mode!=='structured'||count<2;
+ $('batchCount').textContent=count+'개 박스 선택';
+ $('selectionTitle').textContent=mode==='structured'&&count>1?'· '+count+'개 박스 선택':$('selectionTitle').textContent;
+ if(count>=2&&lastBatchCount<2)document.querySelector('aside')?.scrollTo({top:0,behavior:'smooth'});
+ lastBatchCount=count;
+}
+document.addEventListener('keydown',e=>{const active=document.activeElement;if(['INPUT','TEXTAREA','SELECT'].includes(active?.tagName)||active?.isContentEditable)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&mode==='structured'){e.preventDefault();selectBoxes();}else if(e.key==='Escape'&&(selected.size||marqueeMode)){selected.clear();edgeSelect=null;marqueeMode=false;$('marqueeBtn').classList.remove('active');$('marqueeBtn').setAttribute('aria-pressed','false');updateUI();}});
+const originalBatchUI=updateUI;
+updateUI=function(){originalBatchUI();updateBatchPanel()};
+const batchGet=id=>$(id);
+$('applyBatch').onclick=()=>{
+ if(mode!=='structured'||selected.size<2)return;
+ const candidates=[...selected].map(getNode).filter(Boolean);
+ const fMain=Number(batchGet('batchFontMain').value),fSub=Number(batchGet('batchFontSub').value);
+ const padding=Number(batchGet('batchPad').value);
+ const paddingY=Number(batchGet('batchPadY').value);
+ const outlineWidth=Number(batchGet('batchOutlineWidth').value);
+ if(batchGet('batchDoFonts').checked&&(!Number.isFinite(fMain)||fMain<10||fMain>80||!Number.isFinite(fSub)||fSub<9||fSub>60)){toast('글자 크기 범위를 확인해 주세요.');return;}
+ if(batchGet('batchDoPadding').checked&&(!Number.isFinite(padding)||padding<12||padding>80||!Number.isFinite(paddingY)||paddingY<8||paddingY>80)){toast('좌우 여백 12~80px, 상하 여백 8~80px 범위를 확인하세요.');return;}
+ if(batchGet('batchDoOutline').checked&&(!Number.isFinite(outlineWidth)||outlineWidth<1||outlineWidth>12)){toast('윤곽선 굵기를 확인해 주세요.');return;}
+ checkpoint();
+ for(const n of candidates){
+  if(batchGet('batchDoFonts').checked){n.fontMain=fMain;n.fontSub=fSub}
+  if(batchGet('batchDoPadding').checked){n.pad=padding;n.padY=paddingY;}
+  if(batchGet('batchDoOutline').checked){n.strokeColor=batchGet('batchOutlineColor').value;n.strokeWidth=outlineWidth}
+  if(batchGet('batchDoFill').checked)n.fill=batchGet('batchTransparent').checked?'none':batchGet('batchFill').value;
+  if(batchGet('batchTextAlign').value)n.textAlign=batchGet('batchTextAlign').value;
+  if(batchGet('batchDoTextColor').checked)n.textColor=batchGet('batchTextColor').value;
+  if(batchGet('batchFit').checked&&n.type==='rect')fitRectToText(n);
+ }
+ updateUI();toast(candidates.length+'개 박스에 스타일을 적용했습니다. (실행 취소 가능)');
+};
+$('batchResetStyle').onclick=()=>{
+ if(mode!=='structured'||selected.size<2)return;
+ checkpoint();
+ for(const n of scene.nodes.filter(n=>selected.has(n.id))){
+  delete n.fontMain;delete n.fontSub;delete n.pad;delete n.padY;delete n.strokeColor;delete n.strokeWidth;delete n.textAlign;delete n.textColor;delete n.subTextColor;delete n.preset;delete n.autoFit;
+  n.fill='none';
+  if(n.type==='rect')fitRectToText(n);
+ }
+ updateUI();toast('선택 박스만 기본 스타일로 복원했습니다.');
+};
+updateBatchPanel();
+
+
+/* v2.5 selective SVG editor conveniences from Boxy SVG / SVGEdit:
+   optional grid, selected node duplication, safe SVG source preview. */
+$('gridToggle').onclick=()=>{
+ editorGridVisible=!editorGridVisible;
+ $('gridToggle').setAttribute('aria-pressed',String(editorGridVisible));
+ $('gridToggle').classList.toggle('active',editorGridVisible);
+ $('gridToggle').textContent=editorGridVisible?'격자 숨기기':'격자 표시';
+ render();
+};
+function duplicateSelectedNodes(){
+ if(mode!=='structured'||!selected.size){toast('복제할 도형을 먼저 선택해 주세요.');return;}
+ checkpoint();
+ const source=[...selected].map(getNode).filter(Boolean);
+ const idMap=new Map();
+ const shift=35;
+ const copies=source.map(n=>{
+  const id=uid('n');idMap.set(n.id,id);
+  return {...JSON.parse(JSON.stringify(n)),id,x:Math.min(scene.width-60,n.x+shift),
+      y:Math.min(scene.height-50,n.y+shift)};
+ });
+ scene.nodes.push(...copies);
+ const originalEdges=scene.edges.slice();
+ for(const e of originalEdges){
+  if(idMap.has(e.from)&&idMap.has(e.to)){
+   scene.edges.push({...JSON.parse(JSON.stringify(e)),id:uid('e'),
+     from:idMap.get(e.from),to:idMap.get(e.to),
+     via:e.via?{x:e.via.x+shift,y:e.via.y+shift}:null});
+  }
+ }
+ selected=new Set(copies.map(n=>n.id));edgeSelect=null;
+ updateUI();toast(copies.length+'개 도형을 복제했습니다.');
+}
+$('duplicateSelection').onclick=duplicateSelectedNodes;
+document.addEventListener('keydown',e=>{
+ const active=document.activeElement;
+ if(['INPUT','TEXTAREA','SELECT'].includes(active?.tagName)||active?.isContentEditable)return;
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'&&mode==='structured'){
+  e.preventDefault();duplicateSelectedNodes();return;
+ }
+ if(e.key.toLowerCase()==='g'&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+  e.preventDefault();$('gridToggle').click();
+ }
+});
+const sourceDialog=$('sourceDialog');
+$('viewSvgSource').onclick=()=>{
+ $('svgSourcePreview').value=svgString();sourceDialog.showModal();
+};
+$('closeSource').onclick=$('closeSource2').onclick=()=>sourceDialog.close();
+$('copySvgSource').onclick=async()=>{
+ const v=$('svgSourcePreview').value;
+ try{
+  await navigator.clipboard.writeText(v);
+  toast('SVG 코드를 복사했습니다.');
+ }catch{
+  $('svgSourcePreview').focus();$('svgSourcePreview').select();
+  toast('코드를 선택했습니다. Ctrl+C를 누르세요.');
+ }
+};
+
+
+
+/* v2.7: user-selectable named shape presets; no existing shape changes on choice alone. */
+const BOX_STYLE_PRESETS=Object.freeze({
+ navy:{name:'곤색 선 · 투명',textColor:'#172439',subTextColor:'#273e5e',
+       strokeColor:'#1F3A5F',fill:'none',fontMain:23,fontSub:18,strokeWidth:3.5},
+ mono:{name:'흑백 기본형',textColor:'#1b1b1b',subTextColor:'#424242',
+       strokeColor:'#242424',fill:'none',fontMain:22,fontSub:17,strokeWidth:3},
+ blue:{name:'하늘색 채움',textColor:'#163457',subTextColor:'#325477',
+       strokeColor:'#205184',fill:'#eaf3ff',fontMain:23,fontSub:18,strokeWidth:3},
+ mint:{name:'연녹색 채움',textColor:'#153e37',subTextColor:'#3b615b',
+       strokeColor:'#236a5c',fill:'#eaf8f1',fontMain:23,fontSub:17,strokeWidth:3},
+ wine:{name:'와인색 강조',textColor:'#541d2b',subTextColor:'#784450',
+       strokeColor:'#71304a',fill:'#fff2f4',fontMain:24,fontSub:18,strokeWidth:3.5},
+ dark:{name:'진한 곤색 채움',textColor:'#ffffff',subTextColor:'#dceaff',
+       strokeColor:'#102944',fill:'#1f3a5f',fontMain:23,fontSub:18,strokeWidth:3.5}
+});
+function applyPresetToNode(node,key){
+ const preset=BOX_STYLE_PRESETS[key]||BOX_STYLE_PRESETS.navy;
+ node.preset=BOX_STYLE_PRESETS[key]?key:'navy';
+ for(const property of ['textColor','subTextColor','strokeColor','fill','fontMain','fontSub','strokeWidth']){
+  node[property]=preset[property];
+ }
+ node.pad=12;
+ node.padY=8; // minimum supported vertical inset; existing saved node overrides remain unchanged
+ node.textAlign='center';
+ node.autoFit=true;
+}
+function selectedPreset(){
+ return BOX_STYLE_PRESETS[$('stylePresetSelect').value]||BOX_STYLE_PRESETS.navy;
+}
+function updateStylePreview(){
+ const p=selectedPreset(),sw=$('stylePresetSwatch');
+ sw.style.background=p.fill==='none'?'#ffffff':p.fill;
+ sw.style.color=p.textColor;
+ sw.style.borderColor=p.strokeColor;
+ sw.style.fontSize=Math.max(14,Math.round(p.fontMain*.72))+'px';
+ $('stylePresetDesc').textContent=p.name+
+   ' · 글자 '+p.fontMain+'/'+p.fontSub+'px · '+(p.fill==='none'?'채움 없음':'채움 적용')+
+   ' · 상하 여백 10.67px';
+ const def=scene.settings.defaultPreset||'navy';
+ $('stylePresetStatus').textContent='새 박스 기본: '+(BOX_STYLE_PRESETS[def]||BOX_STYLE_PRESETS.navy).name+
+   ' · 선택 박스는 「선택 박스에 적용」을 눌러 변경합니다.';
+}
+$('stylePresetSelect').addEventListener('change',updateStylePreview);
+$('applyStyleSelected').onclick=()=>{
+ if(mode!=='structured'){toast('구조화된 도면에서만 사용할 수 있습니다.');return;}
+ const targets=scene.nodes.filter(n=>selected.has(n.id));
+ if(!targets.length){toast('먼저 도형을 하나 이상 선택하세요.');return;}
+ const id=$('stylePresetSelect').value;
+ checkpoint();
+ for(const n of targets){
+  applyPresetToNode(n,id);
+  if(n.type==='rect')fitRectToText(n);
+ }
+ updateUI();toast(targets.length+'개 박스에 '+selectedPreset().name+' 스타일을 적용했습니다.');
+};
+$('makeStyleDefault').onclick=()=>{
+ if(mode!=='structured'){toast('구조화된 도면에서만 사용할 수 있습니다.');return;}
+ const id=$('stylePresetSelect').value;
+ if(!BOX_STYLE_PRESETS[id])return;
+ checkpoint();scene.settings.defaultPreset=id;
+ updateUI();toast('새로 추가할 박스의 기본 스타일을 '+selectedPreset().name+'으로 설정했습니다.');
+};
+const beforePresetUpdate=updateUI;
+updateUI=function(){beforePresetUpdate();updateStylePreview()};
+const beforePresetShow=showProps;
+showProps=function(){beforePresetShow();updateStylePreview()};
+updateStylePreview();
+
+/* v2.6 context-sensitive properties. Every control persists in scene JSON. */
+const cssColor=(value,fallback)=>/^#[0-9a-fA-F]{6}$/.test(value||'')?value:fallback;
+const setQuickVisibility=(id,yes)=>{$(id).hidden=!yes};
+const safeValue=(id,value)=>{if(document.activeElement!==$(id))$(id).value=String(value)};
+function updateQuickInspector(){
+ const isDoc=mode==='structured',single=isDoc&&selected.size===1&&!edgeSelect&&!activeHeading;
+ const multi=isDoc&&selected.size>1&&!edgeSelect;
+ const edge=isDoc&&Boolean(edgeSelect);
+ const heading=isDoc&&Boolean(activeHeading);
+ setQuickVisibility('quickNode',single);
+ setQuickVisibility('quickEdge',edge);
+ setQuickVisibility('quickGlobal',isDoc&&!selected.size&&!edgeSelect&&!activeHeading);
+ setQuickVisibility('quickMultiple',multi);
+ if(multi){$('inspectorAdvanced').open=false;}
+ setQuickVisibility('quickHeading',heading);
+ $('quickInspector').hidden=!isDoc;
+ if(single){
+  const n=getNode([...selected][0]);if(!n)return;
+  safeValue('quickFontMain',n.fontMain??scene.settings.fontMain);
+  safeValue('quickFontSub',n.fontSub??scene.settings.fontSub);
+  safeValue('quickTextAlign',n.textAlign||'center');
+  safeValue('quickTextColor',cssColor(n.textColor,'#172439'));
+  safeValue('quickStrokeColor',cssColor(n.strokeColor,'#1f3a5f'));
+  safeValue('quickStrokeWidth',n.strokeWidth??scene.settings.stroke);
+  safeValue('quickPad',n.pad??scene.settings.pad);
+  safeValue('quickPadY',n.padY??scene.settings.padY??10.67);
+  safeValue('quickX',n.x);safeValue('quickY',n.y);safeValue('quickW',n.w);safeValue('quickH',n.h);
+  $('quickTransparent').checked=n.fill==='none';safeValue('quickFill',cssColor(n.fill,'#ffffff')); $('quickFill').disabled=n.fill==='none';
+  $('quickAutoFit').checked=n.autoFit!==false;
+ }
+ if(edge){
+  const e=scene.edges.find(e=>e.id===edgeSelect);if(!e)return;
+  safeValue('quickEdgeColor',cssColor(e.strokeColor,'#5a1e1e'));
+  safeValue('quickEdgeWidth',e.strokeWidth??Math.max(3.5,scene.settings.stroke));
+  safeValue('quickArrowSize',e.arrowSize??16);
+  safeValue('quickEdgeFont',e.labelFont??17);
+  safeValue('quickEdgeRoute',e.route||'auto');
+  safeValue('quickEdgeLabel',e.label||'');safeValue('quickFromPort',e.fp||'bottom');safeValue('quickToPort',e.tp||'top');
+ }
+ if(heading){
+  const h=getHeading(activeHeading);
+  safeValue('quickHeadingSize',h.size);
+  safeValue('quickHeadingAlign',h.align||'left');
+  safeValue('quickHeadingX',h.x);
+  safeValue('quickHeadingY',h.y);
+ }
+ if(isDoc&&!single&&!multi&&!edge&&!heading){
+  safeValue('quickDocTitle',scene.title);
+  safeValue('quickDocSubtitle',scene.subtitle);
+  safeValue('quickGlobalFont',scene.settings.fontMain);
+  safeValue('quickGlobalSub',scene.settings.fontSub);
+  safeValue('quickGlobalPad',scene.settings.pad);
+  safeValue('quickGlobalStroke',scene.settings.stroke);
+  safeValue('quickPageW',scene.width);safeValue('quickGlobalGap',scene.settings.gap);
+ }
+}
+const beforeQuickUI=updateUI;
+updateUI=function(){beforeQuickUI();updateQuickInspector()};
+function editableNode(){return mode==='structured'&&selected.size===1&&!edgeSelect?getNode([...selected][0]):null}
+function editableEdge(){return mode==='structured'?scene.edges.find(e=>e.id===edgeSelect):null}
+function quickNumeric(id,min,max){
+ const v=Number($(id).value);
+ if(!Number.isFinite(v)||v<min||v>max){toast('입력 범위: '+min+' ~ '+max);updateQuickInspector();return null}
+ return v;
+}
+function hookNode(id,key,min,max){
+ $(id).addEventListener('change',()=>{
+  const n=editableNode();if(!n)return;
+  const v=quickNumeric(id,min,max);if(v===null)return;
+  if(n[key]===v)return;
+  checkpoint();n[key]=v;
+  if(n.type==='rect'&&n.autoFit!==false)fitRectToText(n);
+  updateUI();
+ });
+}
+for(const [id,key,lo,hi] of [
+ ['quickFontMain','fontMain',10,80],['quickFontSub','fontSub',9,60],
+ ['quickStrokeWidth','strokeWidth',1,15],['quickPad','pad',12,80],['quickPadY','padY',8,80]
+])hookNode(id,key,lo,hi);
+for(const [id,key,lo,hi] of [
+ ['quickX','x',-10000,10000],['quickY','y',-10000,10000],
+ ['quickW','w',120,1800],['quickH','h',50,800]
+]){
+ $(id).addEventListener('change',()=>{
+  const n=editableNode();if(!n)return;
+  const v=quickNumeric(id,lo,hi);if(v===null)return;
+  checkpoint();n[key]=v;
+  if((key==='w'||key==='h')&&n.type==='rect')n.autoFit=false;
+  updateUI();
+ });
+}
+$('quickTransparent').addEventListener('change',()=>{
+ const n=editableNode();if(!n)return;
+ checkpoint();n.fill=$('quickTransparent').checked?'none':$('quickFill').value;updateUI();
+});
+$('quickFill').addEventListener('change',()=>{
+ const n=editableNode();if(!n||n.fill==='none')return;
+ checkpoint();n.fill=$('quickFill').value;updateUI();
+});
+for(const [id,key] of [['quickTextAlign','textAlign'],['quickTextColor','textColor'],['quickStrokeColor','strokeColor']]){
+ $(id).addEventListener('change',()=>{
+  const n=editableNode();if(!n)return;
+  checkpoint();n[key]=$(id).value;updateUI();
+ });
+}
+$('quickAutoFit').addEventListener('change',()=>{
+ const n=editableNode();if(!n)return;checkpoint();
+ n.autoFit=$('quickAutoFit').checked;
+ if(n.autoFit&&n.type==='rect')fitRectToText(n);
+ updateUI();
+});
+$('quickFitNode').onclick=()=>{
+ const n=editableNode();if(!n||n.type!=='rect'){toast('직사각형을 선택해 주세요.');return;}
+ checkpoint();fitRectToText(n);updateUI();
+};
+$('quickResetNode').onclick=()=>{
+ const n=editableNode();if(!n)return;checkpoint();
+ for(const k of ['fontMain','fontSub','pad','padY','strokeWidth','strokeColor','textAlign','textColor','subTextColor','autoFit','preset'])delete n[k];
+ n.fill='none';if(n.type==='rect')fitRectToText(n);updateUI();
+};
+function hookEdgeNum(id,key,lo,hi){
+ $(id).addEventListener('change',()=>{
+  const e=editableEdge();if(!e)return;
+  const v=quickNumeric(id,lo,hi);if(v===null)return;
+  checkpoint();e[key]=v;updateUI();
+ });
+}
+for(const [id,key,lo,hi] of [
+ ['quickEdgeWidth','strokeWidth',1,15],['quickArrowSize','arrowSize',7,32],
+ ['quickEdgeFont','labelFont',10,35]
+])hookEdgeNum(id,key,lo,hi);
+for(const [id,key] of [['quickEdgeColor','strokeColor'],['quickEdgeRoute','route'],['quickEdgeLabel','label'],['quickFromPort','fp'],['quickToPort','tp']]){
+ $(id).addEventListener('change',()=>{
+  const e=editableEdge();if(!e)return;
+  checkpoint();e[key]=$(id).value;updateUI();
+ });
+}
+$('quickResetEdge').onclick=()=>{
+ const e=editableEdge();if(!e)return;checkpoint();
+ for(const k of ['strokeWidth','arrowSize','labelFont','strokeColor'])delete e[k];
+ updateUI();
+};
+for(const [id,key,lo,hi] of [
+ ['quickGlobalFont','fontMain',12,50],['quickGlobalSub','fontSub',10,40],
+ ['quickGlobalPad','pad',12,80],['quickGlobalStroke','stroke',1,10],['quickGlobalGap','gap',20,130]
+]){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured'||selected.size||edgeSelect||activeHeading)return;
+  const v=quickNumeric(id,lo,hi);if(v===null)return;
+  checkpoint();scene.settings[key]=v;
+  if(key!=='stroke'&&$('autoFitText')?.checked)fitAllRects();
+  updateUI();
+ });
+}
+
+$('quickPageW').addEventListener('change',()=>{
+ if(mode!=='structured'||selected.size||edgeSelect||activeHeading)return;
+ const v=quickNumeric('quickPageW',700,7000);if(v===null)return;
+ checkpoint();scene.width=v;updateUI();
+});
+/* Organize compact property groups without removing any original control. */
+function inspectorFold(scope,id,title,fields,open=true){
+ const root=$(scope).querySelector(':scope > .property-grid');
+ if(!root)throw new Error('속성 그룹 기본 컨테이너가 없습니다: '+scope);
+ const group=document.createElement('details');
+ group.className='inspector-fold';group.id=id;group.open=open;
+ const summary=document.createElement('summary');summary.textContent=title;
+ const grid=document.createElement('div');grid.className='property-grid';
+ for(const key of fields){
+  const control=$(key),wrapper=control?.closest('label');
+  if(wrapper&&root.contains(wrapper))grid.append(wrapper);
+ }
+ group.append(summary,grid);root.parentElement.insertBefore(group,root);
+}
+function organizeQuickGroups(){
+ inspectorFold('quickNode','foldNodeText','글자 · 정렬 · 색상',
+  ['quickFontMain','quickFontSub','quickTextAlign','quickTextColor'],true);
+ inspectorFold('quickNode','foldNodeShape','박스 · 테두리 · 배경',
+  ['quickStrokeColor','quickStrokeWidth','quickPad','quickPadY','quickAutoFit','quickTransparent','quickFill'],true);
+ inspectorFold('quickNode','foldNodeGeometry','위치 · 가로세로 크기',
+  ['quickX','quickY','quickW','quickH'],false);
+ const nodeRoot=$('quickNode').querySelector(':scope > .property-grid');
+ if(nodeRoot&&!nodeRoot.children.length)nodeRoot.remove();
+ inspectorFold('quickEdge','foldEdgeLine','연결선 모양 · 글자',
+  ['quickEdgeColor','quickEdgeWidth','quickArrowSize','quickEdgeFont','quickEdgeLabel'],true);
+ inspectorFold('quickEdge','foldEdgeAttach','연결점 · 경로',
+  ['quickFromPort','quickToPort','quickEdgeRoute'],true);
+ const edgeRoot=$('quickEdge').querySelector(':scope > .property-grid');
+ if(edgeRoot&&!edgeRoot.children.length)edgeRoot.remove();
+}
+organizeQuickGroups();
+
+
+for(const [id,key] of [['quickDocTitle','title'],['quickDocSubtitle','subtitle']]){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured'||selected.size||edgeSelect||activeHeading)return;
+  if(scene[key]===$(id).value)return;
+  checkpoint();scene[key]=$(id).value;
+  if(getHeading(key).autoFit!==false)fitHeading(key);
+  updateUI();
+ });
+}
+for(const [id,key,lo,hi] of [
+ ['quickHeadingSize','size',12,72],['quickHeadingX','x',-10000,10000],['quickHeadingY','y',-10000,10000]
+]){
+ $(id).addEventListener('change',()=>{
+  if(mode!=='structured'||!activeHeading)return;
+  const v=quickNumeric(id,lo,hi);if(v===null)return;
+  const h=getHeading(activeHeading);
+  checkpoint();h[key]=v;
+  if(key==='size'&&h.autoFit!==false)fitHeading(activeHeading);
+  updateUI();
+ });
+}
+$('quickHeadingAlign').addEventListener('change',()=>{
+ if(mode!=='structured'||!activeHeading)return;
+ const h=getHeading(activeHeading);checkpoint();h.align=$('quickHeadingAlign').value;updateUI();
+});
+
+updateQuickInspector();
+
+
+/* v2.8 guided first-use mode. All legacy controls remain available. */
+const toolBar=document.querySelector('.toolbar');
+const moreButton=document.createElement('button');
+moreButton.id='toolbarMore';moreButton.type='button';
+moreButton.setAttribute('aria-expanded','false');
+moreButton.setAttribute('aria-controls','advancedToolbar');
+toolBar.id='advancedToolbar';
+moreButton.textContent='더 많은 도구 ▾';
+$('saveSVG').insertAdjacentElement('afterend',moreButton);
+// Keep essential controls visible; advanced functions remain accessible with one click.
+const advancedControlIds=['marqueeBtn','selectAllBoxes','clearBoxSelection',
+ 'autoLayout','gridToggle','duplicateSelection','viewSvgSource',
+ 'savePNG','saveJSON','loadJSON','loadSVG'];
+for(const id of advancedControlIds){
+ const el=$(id);
+ if(!el)continue;
+ const control=el.closest('.filebtn')||el;
+ control.classList.add('advanced-tool');
+}
+for(const el of [document.querySelector('#vizioMode')]){
+ if(el)el.classList.add('advanced-tool');
+}
+toolBar.querySelectorAll('.sep').forEach(s=>s.classList.add('advanced-tool'));
+moreButton.onclick=()=>{
+ const open=document.body.classList.toggle('show-extra-tools');
+ moreButton.setAttribute('aria-expanded',String(open));
+ moreButton.textContent=open?'도구 간단히 ▴':'더 많은 도구 ▾';
+};
+const intro=$('welcomeGuide');
+const hideIntro=()=>{intro.hidden=true;try{localStorage.setItem('soc_svg_intro_hidden_v1','1')}catch{}};
+try{intro.hidden=localStorage.getItem('soc_svg_intro_hidden_v1')==='1'}catch{}
+$('hideWelcome').onclick=hideIntro;
+$('demoSelect').onclick=()=>{
+ if(mode!=='structured'){toast('예제 JSON 도면에서 박스를 선택할 수 있습니다.');return;}
+ const n=scene.nodes.find(n=>n.type==='rect')||scene.nodes[0];if(!n)return;
+ selected.clear();selected.add(n.id);edgeSelect=null;activeHeading=null;
+ updateUI();hideIntro();
+ const canvas=$('viewport'),y=n.y*zoom,x=n.x*zoom;
+ canvas.scrollTop=Math.max(0,y-canvas.clientHeight*.32);
+ canvas.scrollLeft=Math.max(0,x-canvas.clientWidth*.50);
+ const asideEl=document.querySelector('aside');if(asideEl)asideEl.scrollTop=0;
+ toast('박스를 선택했습니다. 오른쪽 글자·색상 설정을 변경해 보세요.');
+};
+const quick=$('quickInspector');
+const presetTitle=quick.querySelector('.quick-inspector-title');
+const presetPane=$('stylePresetPanel');
+const presetDisclosure=document.createElement('details');
+presetDisclosure.id='presetDetails';
+const presetSummary=document.createElement('summary');
+presetSummary.textContent='기본 스타일 6종 · 펼쳐서 적용';
+presetDisclosure.append(presetSummary,presetPane);
+quick.insertBefore(presetDisclosure,presetTitle);
+if(presetTitle)presetTitle.remove();
+const fastTitle=quick.querySelector('.quick-inspector-title');
+if(fastTitle)fastTitle.textContent='선택한 대상 빠른 편집';
+const guideSupport=document.createElement('details');
+guideSupport.className='guide-support';
+const helpSummary=document.createElement('summary');
+helpSummary.textContent='연결선 직접 선택 · 조작 도움말';
+const guideDetails=document.createElement('div');guideDetails.className='guide-details';
+guideSupport.append(helpSummary,guideDetails);
+guideDetails.append(edgePickerBlock,helpPanel);
+$('inspectorAdvanced').insertAdjacentElement('afterend',guideSupport);
+const selectionHint=document.createElement('p');
+selectionHint.id='selectionFocusHint';
+quick.insertBefore(selectionHint,presetDisclosure);
+let lastGuidedState='';
+function updateGuidedInspector(){
+ const count=selected.size;
+ const state=mode==='raw'?'raw':edgeSelect?'edge':activeHeading?'heading':count>1?'multiple':count===1?'single':'none';
+ if(lastGuidedState!==state){
+  if(count>0&&mode==='structured'&&lastGuidedState==='none'){
+   $('inspectorAdvanced').open=false;
+  }
+  if(state==='single'||state==='multiple')presetDisclosure.open=false;
+  lastGuidedState=state;
+ }
+ selectionHint.textContent=state==='none'?'먼저 왼쪽 도면에서 수정할 박스를 선택하세요.':
+  state==='single'?'선택한 박스의 글자와 모양을 아래에서 바꿀 수 있습니다.':
+  state==='multiple'?count+'개 박스를 선택했습니다. 아래 일괄 편집에서 한 번에 적용하세요.':
+  state==='edge'?'선 색상·굵기와 연결점을 아래에서 수정하세요.':
+  state==='heading'?'제목의 글꼴과 위치를 아래에서 수정하세요.':'외부 SVG 편집 모드입니다.';
+ // Keep global document settings accessible but collapsed until needed.
+ globalDisclosure.hidden=state!=='none';
+ // Novices can see the available presets after selecting nodes, not on every startup.
+ $('stylePresetPanel').hidden=mode!=='structured';
+}
+// Global document controls stay available without overwhelming new users.
+const globalScope=$('quickGlobal');
+const globalDisclosure=document.createElement('details');
+globalDisclosure.id='globalDocumentSettings';globalDisclosure.className='inspector-fold';
+const globalSummary=document.createElement('summary');
+globalSummary.textContent='도면 전체 설정 · 제목 · 글자 크기';
+globalDisclosure.append(globalSummary,globalScope);
+quick.insertBefore(globalDisclosure,quick.querySelector('#quickMultiple'));
+const previousGuidedUI=updateUI;
+updateUI=function(){previousGuidedUI();updateGuidedInspector()};
+updateGuidedInspector();
+
+
+/* v2.9: Part 2 chapter drafts, preserving Part 1 and the verified chapter 01 example. */
+function chapterFileStem(){
+ const m=String(scene.chapter||scene.title||'P2-01').match(/P2[-_](\d{2})/i);
+ return 'P2_'+(m?m[1]:'01');
+}
+function validateChapterScene(data){
+ if(!data||typeof data!=='object'||!Array.isArray(data.nodes)||!Array.isArray(data.edges)||
+    !data.settings||!Number.isFinite(data.width)||!Number.isFinite(data.height))throw Error('도면 구조가 올바르지 않습니다.');
+ const ids=new Set(data.nodes.map(n=>n.id));
+ if(ids.size!==data.nodes.length)throw Error('중복된 도형 ID가 있습니다.');
+ for(const e of data.edges)if(!ids.has(e.from)||!ids.has(e.to))throw Error('연결선 대상 도형이 없습니다.');
+ return data;
+}
+$('loadChapter').onclick=async()=>{
+ const num=$('chapterSelect').value||'01';
+ const prior=chapterFileStem().slice(-2);
+ if(num===prior&&mode==='structured'){toast('이미 '+num+'장 도면이 열려 있습니다.');return;}
+ if(!confirm('현재 편집 내용은 새 장을 열면 교체됩니다. 작업 저장(JSON)을 먼저 하셨나요?'))return;
+ $('loadChapter').disabled=true;
+ try{
+  let next;
+  if(num==='01')next=baseScene();
+  else{
+   const url='./chapters/P2_'+num+'.json';
+   const pagesResponse=await fetch('./chapters/P2_'+num+'_pages.json',{cache:'no-cache'});
+   const response=pagesResponse.ok?pagesResponse:await fetch(url,{cache:'no-cache'});
+   if(!response.ok)throw Error('GitHub Pages에서 장별 파일을 찾을 수 없습니다 (HTTP '+response.status+')');
+   const loaded=await response.json();
+   if(Array.isArray(loaded.pages)){validatePageDocument(loaded);next=loaded.pages[0];pageBook=loaded.pages.map(clonePage);}
+   else{next=validateChapterScene(loaded);pageBook=[clonePage(next)];}
+  }
+  scene=next;if(num==='01')pageBook=[clonePage(scene)];pageIndex=0;refreshPagePicker();mode='structured';rawDoc=null;
+  history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
+  $('modeLabel').textContent='편집 모드: 노드 · P2-'+num;
+  updateUI();fitCanvas();
+  $('fileStatus').textContent='P2-'+num+'장 '+(num==='01'?'기존 예제':'개념도 초안 (코드·보드 미검증)')+' 불러오기';
+  toast(num+'장 도면을 불러왔습니다.');
+ }catch(err){
+  toast('장별 도면 불러오기 실패: '+err.message);
+  $('chapterSelect').value=prior;
+ }finally{$('loadChapter').disabled=false;}
+};
+$('chapterSelect').addEventListener('change',()=>{
+ const num=$('chapterSelect').value;
+ $('loadChapter').textContent=num+'장 열기';
+});
+$('chapterSelect').value='01';
+$('loadChapter').textContent='01장 열기';
+// Keep toolbar picker in sync with JSON imports and the built-in reset.
+const originalChapterUI=updateUI;
+updateUI=function(){
+ originalChapterUI();
+ const chapter=chapterFileStem().slice(-2);
+ if(mode==='structured'&&$('chapterSelect').querySelector('option[value="'+chapter+'"]')){
+  // The dropdown remains an explicit target selection, not forced to track edits.
+ }
+};
+
+
+/* v3.0: legacy single-page JSON remains supported; multi-page JSON uses pages[]. */
+function clonePage(p){return JSON.parse(JSON.stringify(p));}
+function capturePage(){if(mode==='structured')pageBook[pageIndex]=clonePage(scene);}
+function exportPageDocument(){
+ capturePage();
+ if(pageBook.length===1)return clonePage(pageBook[0]);
+ return {version:4,format:'soc-flow-pages',chapter:chapterFileStem().replace('_','-'),
+         activePage:pageIndex,pages:pageBook.map(clonePage)};
+}
+function validatePageDocument(data){
+ if(!data||data.format!=='soc-flow-pages'||!Array.isArray(data.pages)||
+    data.pages.length<1||data.pages.length>40)throw Error('다중 페이지 JSON 형식이 아닙니다.');
+ data.pages.forEach(p=>validateChapterScene(p));
+ data.pages.forEach((p,i)=>p.nodes.forEach(n=>{
+  if(n.type==='page'&&(!Number.isInteger(n.targetPage)||
+      n.targetPage<0||n.targetPage>=data.pages.length))throw Error((i+1)+'페이지에 잘못된 이동 노드가 있습니다.');
+ }));
+ return data;
+}
+function refreshPagePicker(){
+ const picker=$('pagePicker');if(!picker)return;
+ const pages=pageBook.length;
+ picker.replaceChildren(...pageBook.map((p,i)=>new Option((i+1)+' / '+pages+' · '+(p.pageTitle||'페이지 '+(i+1)),String(i))));
+ picker.value=String(pageIndex);
+ $('previousPage').disabled=pageIndex===0;
+ $('nextPage').disabled=pageIndex>=pages-1;
+ $('deletePage').disabled=pages===1;
+ const link=mode==='structured'&&selected.size===1?getNode([...selected][0]):null;
+ $('followPageNode').disabled=!(link&&link.type==='page'&&Number.isInteger(link.targetPage));
+}
+function goToPage(i){
+ if(mode!=='structured'){toast('외부 SVG 편집 모드에서는 페이지를 전환할 수 없습니다.');return;}
+ if(!Number.isInteger(i)||i<0||i>=pageBook.length){toast('존재하지 않는 페이지입니다.');return;}
+ if(i===pageIndex)return;
+ capturePage();pageIndex=i;scene=clonePage(pageBook[i]);
+ history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
+ refreshPagePicker();updateUI();fitCanvas();
+ $('fileStatus').textContent=chapterFileStem()+' · '+(i+1)+' / '+pageBook.length+' 페이지';
+ toast((i+1)+'페이지로 이동했습니다.');
+}
+function appendPage(copyCurrent=false){
+ if(mode!=='structured'){toast('구조화 도면에서만 페이지를 추가할 수 있습니다.');return;}
+ if(pageBook.length>=40){toast('최대 40페이지까지 추가할 수 있습니다.');return;}
+ capturePage();
+ const index=pageBook.length;
+ const p=copyCurrent?clonePage(scene):{
+   version:3,chapter:scene.chapter||chapterFileStem().replace('_','-'),
+   verification:scene.verification||'DESIGN_DRAFT_NOT_CODE_VERIFIED',
+   title:scene.title,subtitle:'페이지 '+(index+1)+' · 편집용 새 도면',
+   width:scene.width,height:Math.max(640,Math.min(scene.height,1000)),
+   settings:clonePage(scene.settings),headings:clonePage(scene.headings||{}),
+   nodes:[],edges:[],pageTitle:'페이지 '+(index+1)
+ };
+ if(copyCurrent)p.pageTitle='페이지 '+(index+1)+' (복제)';
+ pageBook.push(p);goToPage(index);
+}
+function insertPageLink(target){
+ if(mode!=='structured'){toast('구조화 도면에서만 페이지 노드를 만들 수 있습니다.');return;}
+ if(pageBook.length<2){toast('먼저 새 페이지를 추가하세요.');return;}
+ if(!Number.isInteger(target)||target<0||target>=pageBook.length||target===pageIndex){
+  toast('다른 연결 대상 페이지를 선택하세요.');return;
+ }
+ checkpoint();
+ const n={id:uid('page'),type:'page',targetPage:target,
+  x:Math.round(scene.width*.52),y:Math.max(180,scene.height-150),
+  w:480,h:92,title:'↪ '+(target+1)+'페이지로 이동',
+  sub:'페이지 연결 노드 · 두 번 눌러 이동',fill:'none'};
+ applyPresetToNode(n,scene.settings.defaultPreset||'navy');
+ scene.nodes.push(n);selected=new Set([n.id]);edgeSelect=null;updateUI();
+ toast('페이지 연결 노드 추가 완료');
+}
+$('pagePicker').addEventListener('change',e=>goToPage(Number(e.target.value)));
+$('followPageNode').onclick=()=>{
+ const node=selected.size===1?getNode([...selected][0]):null;
+ if(node?.type==='page')goToPage(node.targetPage);
+};
+$('renamePage').onclick=()=>{
+ if(mode!=='structured')return;
+ const name=prompt('현재 페이지 이름',scene.pageTitle||'페이지 '+(pageIndex+1));
+ if(name===null)return;
+ scene.pageTitle=String(name).trim().slice(0,55)||'페이지 '+(pageIndex+1);
+ capturePage();refreshPagePicker();toast('페이지 이름 변경 완료');
+};
+$('previousPage').onclick=()=>goToPage(pageIndex-1);
+$('nextPage').onclick=()=>goToPage(pageIndex+1);
+$('addPage').onclick=()=>appendPage(false);
+$('duplicatePage').onclick=()=>appendPage(true);
+$('addPageNode').onclick=()=>{
+ if(pageBook.length<2){toast('먼저 새 페이지를 추가하세요.');return;}
+ const suggestion=pageIndex+1<pageBook.length?pageIndex+2:1;
+ const value=prompt('연결할 페이지 번호 (1~'+pageBook.length+')',String(suggestion));
+ if(value!==null)insertPageLink(Number(value)-1);
+};
+$('deletePage').onclick=()=>{
+ if(pageBook.length<2)return;
+ if(!confirm((pageIndex+1)+'페이지와 그 노드를 삭제할까요?'))return;
+ capturePage();const removed=pageIndex;pageBook.splice(removed,1);
+ pageBook.forEach(p=>{
+   p.nodes=p.nodes.filter(n=>!(n.type==='page'&&n.targetPage===removed));
+   p.nodes.forEach(n=>{if(n.type==='page'&&n.targetPage>removed)n.targetPage--;});
+   const ids=new Set(p.nodes.map(n=>n.id));p.edges=p.edges.filter(e=>ids.has(e.from)&&ids.has(e.to));
+ });
+ pageIndex=Math.min(removed,pageBook.length-1);scene=clonePage(pageBook[pageIndex]);
+ history=[];future=[];selected.clear();edgeSelect=null;activeHeading=null;
+ refreshPagePicker();updateUI();fitCanvas();toast('페이지 삭제 완료');
+};
+refreshPagePicker();
+const previousPageUI=updateUI;
+updateUI=function(){previousPageUI();refreshPagePicker();};
+
+</script>
+</body></html>
