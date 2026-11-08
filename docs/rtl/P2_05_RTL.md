@@ -46,7 +46,7 @@
   - **candidate_q / stable_count** — 후보가 바뀌면 카운터 초기화
   - **FILTER_CYCLES** — 안정 유지되면 stable_dark 갱신
   - **stable_valid** — 유효 상태에서 auto_light 게이트 허용
-- 핵심 주의: 2FF가 전압 보호를 대신하지 않음.
+- 핵심 주의: candidate 변화 중 stable_dark는 이전 확정값 유지. 2FF는 전압 보호 수단이 아님.
 
 ### p2_04_axi_pwm_v1_0
 
