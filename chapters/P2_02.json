@@ -5,7 +5,7 @@
   "title": "P2-02 · FND 4자리 숫자 표시",
   "subtitle": "01장 LED0 명령 유지 + 02장 FND 추가 · C 명령 처리 개념도 · 보드 검증 별도",
   "width": 1309,
-  "height": 835,
+  "height": 795,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 24,
+    "gap": 16,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 289,
+      "y": 281,
       "w": 420,
       "h": 70,
       "title": "UART 문자열 명령 수신",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 416,
+      "y": 400,
       "w": 460,
       "h": 135,
       "title": "FND 제어 명령인가?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 542,
+      "y": 518,
       "w": 520,
       "h": 70,
       "title": "기존 LED·STATUS·오류 처리",
@@ -128,7 +128,7 @@
       "id": "action",
       "type": "rect",
       "x": 1040,
-      "y": 416,
+      "y": 400,
       "w": 470,
       "h": 70,
       "title": "FND 레지스터 갱신",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 636,
+      "y": 604,
       "w": 490,
       "h": 70,
       "title": "UART 처리 결과 확인",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 730,
+      "y": 690,
       "w": 355,
       "h": 70,
       "title": "다음 명령 수신 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 790,
-        "y": 592
+        "y": 564
       }
     },
     {
