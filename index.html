@@ -510,6 +510,26 @@ function edgeControlPoint(e,pts=edgePath(e)){if(e.via&&Number.isFinite(+e.via.x)
  */
 function inspectDiagramQuality(){
  const findings=[],nodes=scene.nodes,edges=scene.edges;
+ // Validate actual rendered glyphs, not only numeric JSON padding.
+ for(const n of nodes){
+  if(n.type==='diamond')continue; // diamonds use scaled text
+  const g=Array.from($('canvas').querySelectorAll('#nodes [data-node]'))
+    .find(el=>el.dataset.node===n.id);
+  if(!g)continue;
+  const px=Math.max(6,Number(n.pad??scene.settings.pad??6));
+  const py=Math.max(4,Number(n.padY??scene.settings.padY??4));
+  const L=n.x-n.w/2+px,R=n.x+n.w/2-px;
+  const T=n.y-n.h/2+py,B=n.y+n.h/2-py;
+  for(const t of g.querySelectorAll('text')){
+   try{
+    const b=t.getBBox();
+    if(b.x<L-2||b.x+b.width>R+2||b.y<T-2||b.y+b.height>B+2){
+     findings.push({message:'글자 경계 초과: '+n.id,nodes:[n.id],edges:[]});
+     break;
+    }
+   }catch{}
+  }
+ }
  const bounds=n=>({l:n.x-n.w/2,r:n.x+n.w/2,t:n.y-n.h/2,b:n.y+n.h/2});
  const rects=nodes.map(bounds);
  for(let i=0;i<nodes.length;i++){
