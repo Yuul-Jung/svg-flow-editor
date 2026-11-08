@@ -5,7 +5,7 @@
   "title": "P2-09 · 자동·수동 모드 통합",
   "subtitle": "MODE AUTO/MANUAL · UART/타이머/버튼 IRQ · 설계 개념도(코드·보드 미검증)",
   "width": 1162,
-  "height": 935,
+  "height": 915,
   "headings": {
     "title": {
       "x": 299,
@@ -30,7 +30,7 @@
     "fontMain": 23,
     "fontSub": 18,
     "stroke": 3.5,
-    "gap": 44,
+    "gap": 40,
     "pad": 6,
     "padY": 4,
     "defaultPreset": "navy"
@@ -62,7 +62,7 @@
       "id": "input",
       "type": "rect",
       "x": 490,
-      "y": 309,
+      "y": 305,
       "w": 295,
       "h": 70,
       "title": "명령·인터럽트 수신",
@@ -84,7 +84,7 @@
       "id": "decision",
       "type": "diamond",
       "x": 490,
-      "y": 456,
+      "y": 448,
       "w": 460,
       "h": 135,
       "title": "AUTO 모드인가?",
@@ -106,7 +106,7 @@
       "id": "other",
       "type": "rect",
       "x": 490,
-      "y": 602,
+      "y": 590,
       "w": 330,
       "h": 70,
       "title": "수동 제어 실행",
@@ -127,8 +127,8 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 934,
-      "y": 456,
+      "x": 918,
+      "y": 448,
       "w": 315,
       "h": 70,
       "title": "자동 제어 실행",
@@ -150,7 +150,7 @@
       "id": "status",
       "type": "rect",
       "x": 490,
-      "y": 716,
+      "y": 700,
       "w": 400,
       "h": 70,
       "title": "인터럽트·표시 갱신",
@@ -172,7 +172,7 @@
       "id": "repeat",
       "type": "rect",
       "x": 490,
-      "y": 830,
+      "y": 810,
       "w": 290,
       "h": 70,
       "title": "다음 이벤트·명령 대기",
@@ -271,7 +271,7 @@
       "labelFont": 17,
       "via": {
         "x": 644,
-        "y": 663
+        "y": 649
       }
     },
     {
