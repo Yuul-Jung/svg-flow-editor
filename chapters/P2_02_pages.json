@@ -339,8 +339,8 @@
       "pageTitle": "DISP 명령·레지스터·RTL 분리",
       "title": "P2-02 · FND 명령 상세 처리",
       "subtitle": "C 분기·레지스터 쓰기와 RTL 시분할 스캔 구분 · 코드/보드 미검증",
-      "width": 1460,
-      "height": 1365,
+      "width": 1590,
+      "height": 1355,
       "headings": {
         "title": {
           "x": 299,
@@ -373,7 +373,7 @@
       "nodes": [
         {
           "id": "entry",
-          "x": 600,
+          "x": 750,
           "y": 155,
           "w": 320,
           "h": 70,
@@ -395,7 +395,7 @@
         },
         {
           "id": "is_off",
-          "x": 600,
+          "x": 750,
           "y": 285,
           "w": 485,
           "h": 135,
@@ -417,7 +417,7 @@
         },
         {
           "id": "off",
-          "x": 1140,
+          "x": 260,
           "y": 285,
           "w": 355,
           "h": 70,
@@ -439,7 +439,7 @@
         },
         {
           "id": "is_digits",
-          "x": 600,
+          "x": 750,
           "y": 465,
           "w": 500,
           "h": 135,
@@ -461,7 +461,7 @@
         },
         {
           "id": "invalid",
-          "x": 1140,
+          "x": 1250,
           "y": 465,
           "w": 310,
           "h": 70,
@@ -483,7 +483,7 @@
         },
         {
           "id": "bcd",
-          "x": 600,
+          "x": 750,
           "y": 625,
           "w": 355,
           "h": 70,
@@ -505,7 +505,7 @@
         },
         {
           "id": "write",
-          "x": 600,
+          "x": 750,
           "y": 755,
           "w": 485,
           "h": 70,
@@ -527,7 +527,7 @@
         },
         {
           "id": "report",
-          "x": 600,
+          "x": 750,
           "y": 895,
           "w": 330,
           "h": 70,
@@ -549,7 +549,7 @@
         },
         {
           "id": "return",
-          "x": 600,
+          "x": 750,
           "y": 1035,
           "w": 390,
           "h": 70,
@@ -571,8 +571,8 @@
         },
         {
           "id": "rtl",
-          "x": 1060,
-          "y": 1180,
+          "x": 1250,
+          "y": 1170,
           "w": 515,
           "h": 70,
           "title": "RTL은 독립적으로 4자리 스캔",
@@ -593,8 +593,8 @@
         },
         {
           "id": "nav",
-          "x": 1060,
-          "y": 1290,
+          "x": 1250,
+          "y": 1280,
           "w": 390,
           "h": 70,
           "title": "도면 안내 · 1페이지 열기",
@@ -633,8 +633,8 @@
           "id": "f2",
           "from": "is_off",
           "to": "off",
-          "fp": "right",
-          "tp": "left",
+          "fp": "left",
+          "tp": "right",
           "label": "예",
           "route": "auto",
           "strokeColor": "#5A1E1E",
@@ -724,59 +724,27 @@
           "id": "f9",
           "from": "off",
           "to": "report",
-          "fp": "right",
-          "tp": "right",
+          "fp": "left",
+          "tp": "left",
           "label": "",
-          "route": "auto",
+          "route": "loopLeft",
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
-          "labelFont": 17,
-          "bendPoints": [
-            [
-              1340,
-              285
-            ],
-            [
-              1340,
-              540
-            ],
-            [
-              900,
-              540
-            ],
-            [
-              900,
-              895
-            ]
-          ]
+          "labelFont": 17
         },
         {
           "id": "f10",
           "from": "invalid",
           "to": "return",
-          "fp": "bottom",
+          "fp": "right",
           "tp": "right",
           "label": "",
-          "route": "auto",
+          "route": "loopRight",
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
-          "labelFont": 17,
-          "bendPoints": [
-            [
-              1140,
-              560
-            ],
-            [
-              1420,
-              560
-            ],
-            [
-              1420,
-              1035
-            ]
-          ]
+          "labelFont": 17
         }
       ]
     }
