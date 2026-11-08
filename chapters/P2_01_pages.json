@@ -11,8 +11,8 @@
       "pageTitle": "UART 통합 명령 흐름",
       "title": "P2-01 · UART LED 명령 실행 흐름",
       "subtitle": "MicroBlaze V C · AXI LED0 · 프로그램 명령 처리 / 실물 검증 별도",
-      "width": 1296,
-      "height": 881,
+      "width": 1336,
+      "height": 1049,
       "headings": {
         "title": {
           "x": 474,
@@ -37,7 +37,7 @@
         "fontMain": 23,
         "fontSub": 18,
         "stroke": 3.5,
-        "gap": 16,
+        "gap": 44,
         "pad": 6,
         "padY": 4,
         "defaultPreset": "navy"
@@ -67,7 +67,7 @@
         {
           "id": "receive",
           "x": 580,
-          "y": 281,
+          "y": 309,
           "w": 410,
           "h": 70,
           "title": "read_command_line()",
@@ -88,7 +88,7 @@
         {
           "id": "valid",
           "x": 580,
-          "y": 400,
+          "y": 456,
           "w": 500,
           "h": 135,
           "title": "정상 문자열 명령인가?",
@@ -109,8 +109,8 @@
         },
         {
           "id": "error",
-          "x": 1036,
-          "y": 400,
+          "x": 1076,
+          "y": 456,
           "w": 380,
           "h": 70,
           "title": "오류 응답 또는 빈 줄 무시",
@@ -131,7 +131,7 @@
         {
           "id": "dispatch",
           "x": 580,
-          "y": 518,
+          "y": 602,
           "w": 395,
           "h": 70,
           "title": "handle_command(line)",
@@ -152,7 +152,7 @@
         {
           "id": "report",
           "x": 580,
-          "y": 604,
+          "y": 716,
           "w": 410,
           "h": 70,
           "title": "AXI LED 상태·UART 응답",
@@ -173,7 +173,7 @@
         {
           "id": "repeat",
           "x": 580,
-          "y": 690,
+          "y": 830,
           "w": 325,
           "h": 70,
           "title": "다음 UART 명령 대기",
@@ -193,8 +193,8 @@
         },
         {
           "id": "to_details",
-          "x": 1036,
-          "y": 776,
+          "x": 1076,
+          "y": 944,
           "w": 350,
           "h": 70,
           "title": "도면 안내 · 2페이지 열기",
@@ -329,8 +329,8 @@
       "pageTitle": "LED 명령·레지스터 상세",
       "title": "P2-01 · AXI LED0 상세 제어",
       "subtitle": "LED ON/OFF/STATUS · MicroBlaze C 프로그램과 AXI 레지스터 구분",
-      "width": 1271,
-      "height": 709,
+      "width": 1311,
+      "height": 821,
       "headings": {
         "title": {
           "x": 474,
@@ -355,7 +355,7 @@
         "fontMain": 23,
         "fontSub": 18,
         "stroke": 3.5,
-        "gap": 16,
+        "gap": 44,
         "pad": 6,
         "padY": 4,
         "defaultPreset": "navy"
@@ -385,7 +385,7 @@
         {
           "id": "isled",
           "x": 580,
-          "y": 314,
+          "y": 342,
           "w": 510,
           "h": 135,
           "title": "LED ON 또는 OFF인가?",
@@ -406,8 +406,8 @@
         },
         {
           "id": "other",
-          "x": 1026,
-          "y": 314,
+          "x": 1066,
+          "y": 342,
           "w": 340,
           "h": 70,
           "title": "STATUS 또는 미지원 명령",
@@ -428,7 +428,7 @@
         {
           "id": "write",
           "x": 580,
-          "y": 432,
+          "y": 488,
           "w": 355,
           "h": 70,
           "title": "AXI LED0 REG0 쓰기",
@@ -449,7 +449,7 @@
         {
           "id": "result",
           "x": 580,
-          "y": 518,
+          "y": 602,
           "w": 350,
           "h": 70,
           "title": "UART 출력·LED 상태 확인",
@@ -469,8 +469,8 @@
         },
         {
           "id": "back",
-          "x": 1026,
-          "y": 604,
+          "x": 1066,
+          "y": 716,
           "w": 350,
           "h": 70,
           "title": "도면 안내 · 1페이지 열기",
