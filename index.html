@@ -596,7 +596,7 @@ function measureFlowText(text,fontSize,weight){
 function fitRectToText(node){
  if(!node||node.type!=='rect')return false;
  const fs=Number(node.fontMain||scene.settings.fontMain)||23,ss=Number(node.fontSub||scene.settings.fontSub)||18;
- const pad=Math.max(6,Number(node.pad??scene.settings.pad)||12);
+ const pad=Math.max(6,Number(node.pad??scene.settings.pad)||6);
  const padY=Math.max(4,Number(node.padY??scene.settings.padY??(pad-1.3333)));
  // Keep left/right 3mm. Top/bottom each reduce by 1pt (~1.33px).
  const textWidth=Math.max(measureFlowText(node.title||'',fs,750),measureFlowText(node.sub||'',ss,400));
@@ -627,7 +627,7 @@ function drawText(group,n){
  const titleY=hasSub?n.y-(subSize+gap)/2:n.y;
  const subY=n.y+(titleSize+gap)/2;
  const align=n.textAlign||'center';
- const pad=Math.max(6,Number(n.pad||scene.settings.pad)||12);
+ const pad=Math.max(6,Number(n.pad||scene.settings.pad)||6);
  const textX=align==='left'?n.x-n.w/2+pad:align==='right'?n.x+n.w/2-pad:n.x;
  const common={'text-anchor':align==='left'?'start':align==='right'?'end':'middle',
                'dominant-baseline':'middle','pointer-events':'none'};
@@ -1505,8 +1505,8 @@ function applyPresetToNode(node,key){
  for(const property of ['textColor','subTextColor','strokeColor','fill','fontMain','fontSub','strokeWidth']){
   node[property]=preset[property];
  }
- node.pad=12;
- node.padY=8; // minimum supported vertical inset; existing saved node overrides remain unchanged
+ node.pad=6;
+ node.padY=4; // minimum supported vertical inset; existing saved node overrides remain unchanged
  node.textAlign='center';
  node.autoFit=true;
 }
@@ -1521,7 +1521,7 @@ function updateStylePreview(){
  sw.style.fontSize=Math.max(14,Math.round(p.fontMain*.72))+'px';
  $('stylePresetDesc').textContent=p.name+
    ' · 글자 '+p.fontMain+'/'+p.fontSub+'px · '+(p.fill==='none'?'채움 없음':'채움 적용')+
-   ' · 상하 여백 10.67px';
+   ' · 상하 여백 4px';
  const def=scene.settings.defaultPreset||'navy';
  $('stylePresetStatus').textContent='새 박스 기본: '+(BOX_STYLE_PRESETS[def]||BOX_STYLE_PRESETS.navy).name+
    ' · 선택 박스는 「선택 박스에 적용」을 눌러 변경합니다.';
@@ -1577,7 +1577,7 @@ function updateQuickInspector(){
   safeValue('quickStrokeColor',cssColor(n.strokeColor,'#1f3a5f'));
   safeValue('quickStrokeWidth',n.strokeWidth??scene.settings.stroke);
   safeValue('quickPad',n.pad??scene.settings.pad);
-  safeValue('quickPadY',n.padY??scene.settings.padY??10.67);
+  safeValue('quickPadY',n.padY??scene.settings.padY??4);
   safeValue('quickX',n.x);safeValue('quickY',n.y);safeValue('quickW',n.w);safeValue('quickH',n.h);
   $('quickTransparent').checked=n.fill==='none';safeValue('quickFill',cssColor(n.fill,'#ffffff')); $('quickFill').disabled=n.fill==='none';
   $('quickAutoFit').checked=n.autoFit!==false;
@@ -1629,7 +1629,7 @@ function hookNode(id,key,min,max){
 }
 for(const [id,key,lo,hi] of [
  ['quickFontMain','fontMain',10,80],['quickFontSub','fontSub',9,60],
- ['quickStrokeWidth','strokeWidth',1,15],['quickPad','pad',12,80],['quickPadY','padY',8,80]
+ ['quickStrokeWidth','strokeWidth',1,15],['quickPad','pad',6,80],['quickPadY','padY',4,80]
 ])hookNode(id,key,lo,hi);
 for(const [id,key,lo,hi] of [
  ['quickX','x',-10000,10000],['quickY','y',-10000,10000],
