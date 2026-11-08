@@ -10,7 +10,7 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-03 · 버튼 입력과 인터럽트",
       "subtitle": "BTNU/BTND/BTNL/BTNR · 짧게/길게 · AXI IRQ · 설계 개념도(코드·보드 미검증)",
-      "width": 1265,
+      "width": 1141,
       "height": 881,
       "headings": {
         "title": {
@@ -133,7 +133,7 @@
         {
           "id": "action",
           "type": "rect",
-          "x": 1040,
+          "x": 886,
           "y": 400,
           "w": 370,
           "h": 70,
@@ -198,7 +198,7 @@
         },
         {
           "id": "page_to_detail",
-          "x": 1040,
+          "x": 886,
           "y": 776,
           "w": 330,
           "h": 70,
@@ -299,7 +299,7 @@
           "arrowSize": 16,
           "labelFont": 17,
           "via": {
-            "x": 790,
+            "x": 636,
             "y": 564
           }
         },
@@ -339,7 +339,7 @@
       "pageTitle": "버튼·IRQ 상세",
       "title": "P2-03 · 버튼·IRQ 상세",
       "subtitle": "설계 세부 흐름 · 실제 RTL/C·보드 증거 별도 검증",
-      "width": 1335,
+      "width": 1266,
       "height": 795,
       "settings": {
         "fontMain": 23,
@@ -416,7 +416,7 @@
         },
         {
           "id": "reject",
-          "x": 1130,
+          "x": 1031,
           "y": 314,
           "w": 315,
           "h": 70,
@@ -500,7 +500,7 @@
         },
         {
           "id": "page_to_overview",
-          "x": 1130,
+          "x": 1031,
           "y": 690,
           "w": 330,
           "h": 70,
