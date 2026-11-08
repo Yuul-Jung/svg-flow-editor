@@ -10,8 +10,8 @@
       "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
       "title": "P2-02 · FND 4자리 숫자 표시",
       "subtitle": "01장 LED0 유지 + 02장 FND 추가 · C 명령 흐름 / 페이지 이동 별도",
-      "width": 1457,
-      "height": 1109,
+      "width": 1280,
+      "height": 1090,
       "headings": {
         "title": {
           "x": 299,
@@ -200,8 +200,8 @@
           "id": "page_to_2",
           "type": "page",
           "targetPage": 1,
-          "x": 1260,
-          "y": 1040,
+          "x": 1040,
+          "y": 1015,
           "w": 325,
           "h": 70,
           "title": "도면 안내 · 2페이지 열기",
@@ -339,8 +339,8 @@
       "pageTitle": "DISP 명령·레지스터·RTL 분리",
       "title": "P2-02 · FND 명령 상세 처리",
       "subtitle": "C 분기·레지스터 쓰기와 RTL 시분할 스캔 구분 · 코드/보드 미검증",
-      "width": 1864,
-      "height": 1249,
+      "width": 1460,
+      "height": 1365,
       "headings": {
         "title": {
           "x": 299,
@@ -593,8 +593,8 @@
         },
         {
           "id": "nav",
-          "x": 1600,
-          "y": 1180,
+          "x": 1060,
+          "y": 1290,
           "w": 390,
           "h": 70,
           "title": "도면 안내 · 1페이지 열기",
@@ -727,26 +727,56 @@
           "fp": "right",
           "tp": "right",
           "label": "",
-          "route": "loopRight",
+          "route": "auto",
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
           "labelFont": 17,
-          "laneX": 1360
+          "bendPoints": [
+            [
+              1340,
+              285
+            ],
+            [
+              1340,
+              540
+            ],
+            [
+              900,
+              540
+            ],
+            [
+              900,
+              895
+            ]
+          ]
         },
         {
           "id": "f10",
           "from": "invalid",
           "to": "return",
-          "fp": "right",
+          "fp": "bottom",
           "tp": "right",
           "label": "",
-          "route": "loopRight",
+          "route": "auto",
           "strokeColor": "#5A1E1E",
           "strokeWidth": 3.5,
           "arrowSize": 16,
           "labelFont": 17,
-          "laneX": 1460
+          "bendPoints": [
+            [
+              1140,
+              560
+            ],
+            [
+              1420,
+              560
+            ],
+            [
+              1420,
+              1035
+            ]
+          ]
         }
       ]
     }
