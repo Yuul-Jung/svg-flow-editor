@@ -4,7 +4,7 @@
   "verification": "DESIGN_DRAFT_NOT_CODE_VERIFIED",
   "title": "P2-05 · CdS 디지털 조도 제어",
   "subtitle": "디지털 조도 입력 · AUTO ON/OFF · POL 설정 · 설계 개념도(코드·보드 미검증)",
-  "width": 1249,
+  "width": 1156,
   "height": 795,
   "headings": {
     "title": {
@@ -127,7 +127,7 @@
     {
       "id": "action",
       "type": "rect",
-      "x": 1040,
+      "x": 911,
       "y": 400,
       "w": 350,
       "h": 70,
@@ -270,7 +270,7 @@
       "arrowSize": 16,
       "labelFont": 17,
       "via": {
-        "x": 790,
+        "x": 661,
         "y": 564
       }
     },
