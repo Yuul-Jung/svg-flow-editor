@@ -286,7 +286,7 @@ body:not(.show-extra-tools) .advanced-tool{display:none!important}
 <button class="primary" id="addRect">+ 직사각형</button><button id="addDiamond">+ 판단 마름모</button><button id="addEdge">+ 연결선</button><button id="marqueeBtn" type="button" aria-pressed="false">▣ 영역 선택</button><button id="selectAllBoxes" type="button">전체 박스</button><button id="clearBoxSelection" type="button">선택 해제</button><button id="delete">선택 삭제</button>
 <span class="sep"></span><button id="undo">↶ 실행 취소</button><button id="redo">↷ 다시 실행</button>
 <span class="sep"></span><button id="fit">화면 맞춤</button><button id="zoomOut">－</button><span id="zoomText">100%</span><button id="zoomIn">＋</button>
-<span class="sep"></span><button id="headingGap" type="button" title="제목 아래 구분선과 플로우차트 사이에 최소 여백 확보">제목·도면 여백 정리</button><button id="compactLayout" type="button" title="가로 위치와 분기 구조를 유지하며 세로 박스 간격을 균형 있게 압축">간격 조화 정리</button><button id="autoLayout">수직 정렬</button><button type="button" id="inspectDiagram" title="도형 겹침·페이지 이탈·연결선 교차를 검사합니다. 도면은 변경하지 않습니다.">도면 품질 검사</button>
+<span class="sep"></span><button id="headingGap" type="button" title="제목 아래 구분선과 플로우차트 사이에 최소 여백 확보">제목·도면 여백 정리</button><button id="compactLayout" type="button" title="두 열 도형의 가로·세로 외곽 간격을 16px 기준으로 조정">간격 조화 정리</button><button id="autoLayout">수직 정렬</button><button type="button" id="inspectDiagram" title="도형 겹침·페이지 이탈·연결선 교차를 검사합니다. 도면은 변경하지 않습니다.">도면 품질 검사</button>
 <span class="sep"></span><button id="gridToggle" type="button" aria-pressed="false" title="격자 보기 (G)">격자 표시</button><button id="duplicateSelection" type="button" title="선택한 박스 복제 (Ctrl+D)">복제</button><button id="viewSvgSource" type="button" title="SVG 코드 확인">SVG 코드</button><button id="saveSVG" class="primary">SVG 저장</button><button id="savePNG">PNG 저장</button><button id="saveJSON">작업 저장</button>
 <label class="filebtn">작업 불러오기<input type="file" accept=".json,application/json" id="loadJSON"></label>
 <label class="filebtn">SVG 불러오기<input type="file" accept=".svg,image/svg+xml" id="loadSVG"></label>
@@ -794,6 +794,22 @@ $('headingGap').onclick=()=>{
  scene.height+=dy;
  updateUI();toast('제목 아래 구분선과 도면 사이에 24px 여백을 확보했습니다.');
 };
+function compactHorizontalColumns(){
+ const xs=[...new Set(scene.nodes.map(n=>n.x))].sort((a,b)=>a-b);
+ if(xs.length!==2)return false;
+ const left=scene.nodes.filter(n=>n.x===xs[0]),right=scene.nodes.filter(n=>n.x===xs[1]);
+ const rightEdge=Math.max(...left.map(n=>n.x+n.w/2));
+ const leftEdge=Math.min(...right.map(n=>n.x-n.w/2));
+ const delta=Math.round(rightEdge+16-leftEdge);
+ if(!delta)return false;
+ right.forEach(n=>n.x+=delta);
+ scene.edges.forEach(e=>{
+  if(Array.isArray(e.bendPoints))e.bendPoints=e.bendPoints.map(p=>[p[0]>=(xs[0]+xs[1])/2?p[0]+delta:p[0],p[1]]);
+  if(e.via&&Number.isFinite(+e.via.x)&&e.via.x>=(xs[0]+xs[1])/2)e.via.x=+e.via.x+delta;
+ });
+ scene.width=Math.max(800,Math.ceil(Math.max(...scene.nodes.map(n=>n.x+n.w/2))+70));
+ return true;
+}
 $('compactLayout').onclick=()=>{
  if(mode!=='structured')return;
  if(scene.nodes.length<2){toast('정리할 도형이 부족합니다.');return;}
@@ -806,7 +822,7 @@ $('compactLayout').onclick=()=>{
    last.nodes.push(n);last.height=Math.max(last.height,n.h);
   }else rows.push({anchor:n.y,height:n.h,nodes:[n]});
  }
- if(rows.length<2){toast('압축할 세로 행이 없습니다.');return;}
+ if(rows.length<2){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 16px로 정리했습니다.');}else toast('정리할 세로 행이 없습니다.');return;}
  const gap=16;
  const oldY=new Map(scene.nodes.map(n=>[n.id,n.y]));
  let bottom=rows[0].anchor-rows[0].height/2;
@@ -817,7 +833,7 @@ $('compactLayout').onclick=()=>{
   bottom=y+row.height/2;
  }
  const changed=targets.some(t=>Math.abs(t.now-t.old)>1);
- if(!changed){toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
+ if(!changed){checkpoint();if(compactHorizontalColumns()){updateUI();toast('가로 간격 16px로 정리했습니다.');}else toast('현재 배치가 이미 균형 잡혀 있습니다.');return;}
  checkpoint();
  for(let i=0;i<rows.length;i++){
   const delta=targets[i].now-targets[i].old;
@@ -838,10 +854,11 @@ $('compactLayout').onclick=()=>{
   if(Array.isArray(e.bendPoints))e.bendPoints=e.bendPoints.map(p=>[p[0],mapY(p[1])]);
   if(e.via&&Number.isFinite(+e.via.y))e.via.y=mapY(+e.via.y);
  });
+ compactHorizontalColumns();
  scene.settings.gap=gap;
  const maxBottom=Math.max(...scene.nodes.map(n=>n.y+n.h/2));
  scene.height=Math.max(400,Math.ceil(maxBottom+70));
- updateUI();toast('가로 분기 구조를 유지하고 세로 간격을 '+gap+'px 기준으로 정리했습니다.');
+ updateUI();toast('가로·세로 도형 외곽 간격을 16px 기준으로 정리했습니다.');
 };
 $('autoLayout').onclick=()=>{if(mode!=='structured')return;checkpoint();let main=scene.nodes.filter(n=>n.x<scene.width*.58).sort((a,b)=>a.y-b.y),side=scene.nodes.filter(n=>n.x>=scene.width*.58).sort((a,b)=>a.y-b.y);let maxW=Math.max(...main.map(n=>n.w),500);let mx=scene.width*.43,rx=scene.width*.77;let y=158;for(const n of main){n.x=mx;n.y=y;y+=n.h+scene.settings.gap;}for(const n of side){const src=scene.edges.find(e=>e.to===n.id&&e.fp==='right');const an=src&&getNode(src.from);n.x=rx;if(an)n.y=an.y;}scene.height=Math.max(scene.height,y+80);updateUI();toast('수직 배치를 적용했습니다. 연결선도 자동 재계산됩니다.')};
 $('alignX').onclick=()=>{if(mode!=='structured'||selected.size<2){toast('Shift+클릭으로 2개 이상 선택하세요.');return;}checkpoint();let list=[...selected].map(getNode);let x=list.reduce((a,n)=>a+n.x,0)/list.length;list.forEach(n=>n.x=Math.round(x));updateUI()};
